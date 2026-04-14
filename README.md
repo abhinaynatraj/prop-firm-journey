@@ -70,7 +70,7 @@ This does. It also remembers everything across sessions, lets you bulk-import fi
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/prop-firm-journey.git
+git clone https://github.com/abhinaynatraj/prop-firm-journey.git
 cd prop-firm-journey/server
 npm install
 node server.js
