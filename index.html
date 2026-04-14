@@ -1,0 +1,3671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prop Firm Journey</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230d1117' stroke='%235CB85C' stroke-width='3'/><path d='M14 48 L24 38 L34 42 L44 28 L52 18' stroke='%235CB85C' stroke-width='4' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='14' cy='48' r='3' fill='%235CB85C'/><circle cx='24' cy='38' r='3' fill='%235CB85C'/><circle cx='34' cy='42' r='3' fill='%235CB85C'/><circle cx='44' cy='28' r='3' fill='%235CB85C'/><circle cx='52' cy='18' r='4' fill='%23ffd700' stroke='%235CB85C' stroke-width='1'/></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d1117;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 24px 32px;
+      min-height: 100vh;
+    }
+    a { color: #5CB85C; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header { margin-bottom: 28px; }
+    header { display: flex; align-items: center; gap: 18px; }
+    header .logo-wrap {
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 0 12px rgba(92, 184, 92, 0.25));
+    }
+    header .logo-wrap svg { width: 100%; height: 100%; }
+    header .header-text { flex: 1; }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #5CB85C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle { margin: 4px 0 0; font-size: 14px; color: #556677; }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #556677;
+      font-weight: 600;
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #21262d;
+    }
+    .section-gap { margin-top: 36px; }
+
+    /* ── Primary navigation (top-level tabs) ─────────────────────────── */
+    .primary-nav {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      display: flex;
+      gap: 2px;
+      background: rgba(13, 17, 22, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid #21262d;
+      margin: 0 -32px 28px;
+      padding: 14px 32px 0;
+      overflow-x: auto;
+    }
+    .primary-nav-btn {
+      background: transparent;
+      border: none;
+      color: #556677;
+      padding: 12px 22px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+    }
+    .primary-nav-btn:hover {
+      color: #c0c0c0;
+    }
+    .primary-nav-btn.active {
+      color: #5CB85C;
+      border-bottom-color: #5CB85C;
+    }
+    .primary-nav-btn .nav-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .primary-nav-filter {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .primary-nav-filter-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #556677;
+      font-weight: 600;
+    }
+    .primary-nav-filter select {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      color: #e0e0e0;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .primary-nav-filter select:hover { border-color: #5CB85C; }
+    .primary-nav-filter select.filtered { border-color: #5CB85C; color: #5CB85C; }
+
+    /* Clean up the first section-gap in each view */
+    .view > .section-gap:first-child { margin-top: 0; }
+
+    @media (max-width: 768px) {
+      .primary-nav { margin: 0 -16px 20px; padding: 12px 16px 0; }
+      .primary-nav-btn { padding: 10px 14px 12px; font-size: 12px; }
+    }
+
+    /* Progress Ring */
+    .progress-section {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    .progress-ring-wrap {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      flex-shrink: 0;
+    }
+    .progress-ring-wrap svg { transform: rotate(-90deg); }
+    .progress-ring-bg { fill: none; stroke: #21262d; stroke-width: 10; }
+    .progress-ring-fill { fill: none; stroke: #5CB85C; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+    .progress-ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .progress-ring-text .big { font-size: 36px; font-weight: 700; color: #fff; display: block; }
+    .progress-ring-text .small { font-size: 12px; color: #556677; display: block; margin-top: 2px; }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #8899aa; margin-bottom: 6px; }
+    .stat-value { font-size: 22px; font-weight: 700; color: #fff; }
+    .stat-value.green { color: #5CB85C; }
+    .stat-value.yellow { color: #E8923A; }
+    .stat-value.red { color: #E05C5C; }
+    .stat-sub { font-size: 11px; color: #556677; margin-top: 3px; }
+
+    /* Firm Cards */
+    .firms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .firm-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .firm-card:hover { border-color: #30363d; }
+    .firm-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .firm-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .firm-owner { font-size: 11px; color: #556677; text-transform: uppercase; letter-spacing: 1px; }
+    .firm-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .badge-green { background: rgba(92,184,92,0.12); color: #5CB85C; border: 1px solid rgba(92,184,92,0.25); }
+    .badge-yellow { background: rgba(232,146,58,0.12); color: #E8923A; border: 1px solid rgba(232,146,58,0.25); }
+    .badge-red { background: rgba(224,92,92,0.12); color: #E05C5C; border: 1px solid rgba(224,92,92,0.25); }
+    .badge-blue { background: rgba(88,166,255,0.12); color: #58a6ff; border: 1px solid rgba(88,166,255,0.25); }
+
+    .account-slots {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .slot {
+      flex: 1;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .slot:hover { transform: scale(1.05); }
+    .slot-empty {
+      background: #21262d;
+      border: 1px dashed #30363d;
+      color: #556677;
+    }
+    .slot-eval {
+      background: rgba(232,146,58,0.15);
+      border: 1px solid rgba(232,146,58,0.3);
+      color: #E8923A;
+    }
+    .slot-eval_passed {
+      background: linear-gradient(135deg, rgba(64,206,201,0.18) 0%, rgba(255,215,0,0.18) 100%);
+      border: 1px solid rgba(64,206,201,0.5);
+      color: #40CEC9;
+      animation: slotPulse 2.5s ease-in-out infinite;
+      position: relative;
+    }
+    .slot-eval_passed::after {
+      content: '⭐';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      font-size: 11px;
+      pointer-events: none;
+    }
+    .slot-payout::after {
+      content: '💰';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      font-size: 11px;
+      pointer-events: none;
+    }
+    .slot-payout {
+      position: relative;
+      animation: slotPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes slotPulse {
+      0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+      50%      { box-shadow: 0 0 0 3px rgba(255,215,0,0.15); opacity: 0.92; }
+    }
+
+    /* Celebration treatment for firm cards that have eval_passed or payout slots */
+    .firm-card.celebrating {
+      background: linear-gradient(135deg, #161b22 0%, #1a1812 100%);
+      border-color: rgba(255,215,0,0.35);
+      box-shadow: 0 0 0 1px rgba(255,215,0,0.12), 0 8px 30px rgba(255,215,0,0.06);
+      position: relative;
+    }
+    .firm-card.celebrating::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 11px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(64,206,201,0.3), rgba(255,215,0,0.4));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.6;
+      animation: celebrateGlow 4s linear infinite;
+    }
+    @keyframes celebrateGlow {
+      0%   { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .celebration-banner {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(64,206,201,0.12) 100%);
+      border: 1px solid rgba(255,215,0,0.35);
+      font-size: 11px;
+      color: #f5d76e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .celebration-banner .cb-emoji {
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .celebration-banner strong {
+      color: #ffd700;
+      font-weight: 700;
+    }
+    .celebration-banner .cb-warning {
+      color: #E8923A;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 2px;
+      display: block;
+    }
+
+    /* Drag and drop */
+    .firm-card {
+      cursor: grab;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+    .firm-card:active { cursor: grabbing; }
+    .firm-card.dragging {
+      opacity: 0.4;
+      transform: scale(0.97);
+    }
+    .firm-card.drop-target {
+      box-shadow: 0 0 0 2px #5CB85C, 0 8px 30px rgba(92,184,92,0.3);
+    }
+    .firm-drag-handle {
+      display: inline-block;
+      color: #30363d;
+      font-size: 14px;
+      cursor: grab;
+      padding: 2px 6px;
+      margin-right: 2px;
+      user-select: none;
+      letter-spacing: -2px;
+      vertical-align: middle;
+    }
+    .firm-drag-handle:hover { color: #556677; }
+    .slot-funded {
+      background: rgba(92,184,92,0.15);
+      border: 1px solid rgba(92,184,92,0.3);
+      color: #5CB85C;
+    }
+    .slot-payout {
+      background: rgba(88,166,255,0.15);
+      border: 1px solid rgba(88,166,255,0.3);
+      color: #58a6ff;
+    }
+    .slot-failed {
+      background: rgba(224,92,92,0.18);
+      border: 1px solid rgba(224,92,92,0.5);
+      color: #E05C5C;
+      text-decoration: line-through;
+    }
+
+    .firm-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #556677;
+    }
+    .firm-cost { color: #8899aa; }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8899aa;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+    }
+
+    /* Add Firm */
+    .add-firm-section {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .add-firm-section h3 { margin: 0 0 16px; font-size: 14px; color: #fff; font-weight: 600; }
+    .add-form {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 11px; color: #556677; text-transform: uppercase; letter-spacing: 1px; }
+    .form-group input, .form-group select {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #e0e0e0;
+      font-size: 13px;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: #5CB85C; }
+    .btn {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #5CB85C;
+      color: #0d1117;
+    }
+    .btn-primary:hover { background: #4ca64c; }
+    .btn-danger {
+      background: rgba(224,92,92,0.15);
+      color: #E05C5C;
+      border: 1px solid rgba(224,92,92,0.3);
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+    .btn-danger:hover { background: rgba(224,92,92,0.25); }
+
+    /* Cost Projection */
+    .projection-panel {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .projection-panel h3 { margin: 0 0 16px; font-size: 14px; color: #fff; font-weight: 600; }
+    .projection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .proj-card {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .proj-label { font-size: 11px; color: #556677; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .proj-value { font-size: 20px; font-weight: 700; color: #fff; }
+
+    /* Strategy Table */
+    .strategy-panel {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .strategy-panel h3 { margin: 0 0 16px; font-size: 14px; color: #fff; font-weight: 600; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #556677;
+      border-bottom: 1px solid #21262d;
+    }
+    td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #161b22;
+      color: #c0c0c0;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Phase Timeline */
+    .phase-timeline {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .phase-block {
+      flex: 1;
+      padding: 16px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      position: relative;
+    }
+    .phase-block:first-child { border-radius: 10px 0 0 10px; }
+    .phase-block:last-child { border-radius: 0 10px 10px 0; }
+    .phase-block.active { border-color: #5CB85C; background: rgba(92,184,92,0.05); }
+    .phase-num { font-size: 11px; color: #556677; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .phase-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .phase-desc { font-size: 12px; color: #8899aa; }
+    .phase-target { font-size: 11px; color: #5CB85C; margin-top: 6px; font-weight: 600; }
+
+    /* Tooltip */
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1c2333;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+      color: #e0e0e0;
+    }
+    .slot:hover .tooltip { display: block; }
+
+    /* Gap Banner */
+    .gap-banner {
+      background: linear-gradient(135deg, #161b22 0%, #1a1518 100%);
+      border: 1px solid rgba(232,146,58,0.3);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gap-banner .gap-text { font-size: 14px; color: #E8923A; font-weight: 600; }
+    .gap-banner .gap-sub { font-size: 12px; color: #8899aa; margin-top: 4px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .progress-section { flex-direction: column; }
+      .progress-stats { grid-template-columns: 1fr; }
+      .firms-grid { grid-template-columns: 1fr; }
+      .phase-timeline { flex-direction: column; }
+      .add-form { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-wrap">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5CB85C"/>
+            <stop offset="100%" stop-color="#3a9b3a"/>
+          </linearGradient>
+          <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#161b22"/>
+            <stop offset="100%" stop-color="#0d1117"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#bgGrad)" stroke="url(#logoGrad)" stroke-width="2.5"/>
+        <!-- Journey path: 5 milestones from bottom-left to a flag at the top right -->
+        <path d="M14 48 L24 38 L34 42 L44 28 L52 18" stroke="url(#logoGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="14" cy="48" r="2.5" fill="#5CB85C"/>
+        <circle cx="24" cy="38" r="2.5" fill="#5CB85C"/>
+        <circle cx="34" cy="42" r="2.5" fill="#5CB85C"/>
+        <circle cx="44" cy="28" r="2.5" fill="#5CB85C"/>
+        <circle cx="52" cy="18" r="3.5" fill="#ffd700" stroke="#5CB85C" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Prop Firm Journey</h1>
+      <p class="subtitle">Track your prop accounts · journal trades · measure performance</p>
+    </div>
+  </header>
+
+  <!-- Primary Navigation -->
+  <nav class="primary-nav">
+    <button class="primary-nav-btn active" data-view="dashboard" onclick="switchView('dashboard')">
+      <span class="nav-icon">📊</span>Dashboard
+    </button>
+    <button class="primary-nav-btn" data-view="metrics" onclick="switchView('metrics')">
+      <span class="nav-icon">📈</span>Metrics
+    </button>
+    <button class="primary-nav-btn" data-view="journal" onclick="switchView('journal')">
+      <span class="nav-icon">📓</span>Journal
+    </button>
+    <button class="primary-nav-btn" data-view="equity" onclick="switchView('equity')">
+      <span class="nav-icon">📉</span>Equity
+    </button>
+    <button class="primary-nav-btn" data-view="accounts" onclick="switchView('accounts')">
+      <span class="nav-icon">💼</span>Accounts
+    </button>
+    <button class="primary-nav-btn" data-view="plan" onclick="switchView('plan')">
+      <span class="nav-icon">🎯</span>Plan
+    </button>
+    <div class="primary-nav-filter">
+      <span id="server-indicator" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#556677;cursor:help;" title="Checking server..."></span>
+      <span class="primary-nav-filter-label" style="margin-left:8px;">Stage</span>
+      <select id="global-stage-filter" onchange="setGlobalStageFilter(this.value)">
+        <option value="all">All Accounts</option>
+        <option value="eval">In Evaluation</option>
+        <option value="eval_passed">Eval Passed</option>
+        <option value="funded">Funded</option>
+        <option value="payout">Payout Ready</option>
+        <option value="failed">Busted</option>
+      </select>
+    </div>
+  </nav>
+  <!-- Hidden status-text element kept for compatibility with existing checkServer() -->
+  <span id="server-status-text" style="display:none;"></span>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- DASHBOARD VIEW                                                      -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view active" id="view-dashboard">
+
+  <!-- Progress Ring + Stats -->
+  <div class="progress-section">
+    <div class="progress-ring-wrap">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="progress-ring-bg" cx="80" cy="80" r="65"/>
+        <circle class="progress-ring-fill" id="ring-fill" cx="80" cy="80" r="65"
+                stroke-dasharray="408.4" stroke-dashoffset="408.4"/>
+      </svg>
+      <div class="progress-ring-text">
+        <span class="big" id="ring-count">0</span>
+        <span class="small">of 30 funded</span>
+      </div>
+    </div>
+    <div class="progress-stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Slots</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-sub" id="stat-total-sub">across 0 firms</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">In Evaluation</div>
+        <div class="stat-value yellow" id="stat-eval">0</div>
+        <div class="stat-sub" id="stat-eval-sub">working toward funded</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Funded</div>
+        <div class="stat-value green" id="stat-funded">0</div>
+        <div class="stat-sub" id="stat-funded-sub">0% of target</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Payout Ready</div>
+        <div class="stat-value" id="stat-payout" style="color:#58a6ff">0</div>
+        <div class="stat-sub">eligible for withdrawal</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Not Started</div>
+        <div class="stat-value" id="stat-empty">0</div>
+        <div class="stat-sub">available slots</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Gap to 30</div>
+        <div class="stat-value red" id="stat-gap">0</div>
+        <div class="stat-sub" id="stat-gap-sub">more slots needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gap Banner -->
+  <div class="gap-banner" id="gap-banner" style="display:none;">
+    <div>
+      <div class="gap-text" id="gap-text">You need 20 more account slots to reach 30</div>
+      <div class="gap-sub">Add more firms below or increase account limits</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#21262d;border:1px dashed #30363d;"></div>
+      Not Started
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(232,146,58,0.3);"></div>
+      In Evaluation
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(64,206,201,0.4);"></div>
+      Eval Passed
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(92,184,92,0.3);"></div>
+      Funded
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(88,166,255,0.3);"></div>
+      Payout Ready
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:rgba(224,92,92,0.4);"></div>
+      Busted
+    </div>
+    <div class="legend-item" style="margin-left:auto; color:#556677; font-size:11px;">
+      ⚡ Live = auto-synced from connections · click manual slots to cycle
+    </div>
+  </div>
+
+  <!-- Firms Grid -->
+  <div class="section-gap">
+    <div class="section-title">Account Slots by Firm</div>
+  </div>
+  <div class="firms-grid" id="firms-grid"></div>
+
+  <!-- ─── Inline Calendar (auto-updates whenever data changes) ─────── -->
+  <div class="section-gap">
+    <div class="section-title">P&amp;L Calendar</div>
+  </div>
+  <div id="inline-calendar-container"></div>
+
+  </div><!-- /view-dashboard -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- METRICS VIEW                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view" id="view-metrics">
+
+  <div class="section-gap">
+    <div class="section-title">Performance Metrics</div>
+  </div>
+  <div id="inline-patterns-container"></div>
+
+  </div><!-- /view-metrics -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- PLAN VIEW                                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view" id="view-plan">
+
+  <!-- Add Firm -->
+  <div class="add-firm-section">
+    <h3>Add Firm</h3>
+    <div class="add-form">
+      <div class="form-group">
+        <label>Firm Name</label>
+        <input type="text" id="add-firm-name" placeholder="e.g. Apex Trader Funding">
+      </div>
+      <div class="form-group">
+        <label>Max Accounts</label>
+        <input type="number" id="add-firm-max" value="5" min="1" max="30">
+      </div>
+      <div class="form-group">
+        <label>Eval Cost (per acct)</label>
+        <input type="number" id="add-firm-cost" value="150" min="0" step="5">
+      </div>
+      <button class="btn btn-primary" onclick="addFirm()">Add Firm</button>
+    </div>
+  </div>
+
+  <!-- Phase Timeline -->
+  <div class="section-gap">
+    <div class="section-title">Scaling Strategy</div>
+  </div>
+  <div class="phase-timeline">
+    <div class="phase-block active">
+      <div class="phase-num">Phase 1</div>
+      <div class="phase-title">Foundation</div>
+      <div class="phase-desc">Pass evals on current 6 firm entries (30 accounts)</div>
+      <div class="phase-target">Target: 30 funded</div>
+    </div>
+    <div class="phase-block">
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-title">Expand</div>
+      <div class="phase-desc">Add 4+ more firm entries to reach 30 slots</div>
+      <div class="phase-target">Target: 30 slots</div>
+    </div>
+    <div class="phase-block">
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-title">Fund All</div>
+      <div class="phase-desc">Pass remaining evals, all 30 accounts funded</div>
+      <div class="phase-target">Target: 30 funded</div>
+    </div>
+    <div class="phase-block">
+      <div class="phase-num">Phase 4</div>
+      <div class="phase-title">Harvest</div>
+      <div class="phase-desc">Scale payouts across all funded accounts</div>
+      <div class="phase-target">Target: Max payouts</div>
+    </div>
+  </div>
+
+  <!-- Cost Projection -->
+  <div class="projection-panel">
+    <h3>Cost &amp; Revenue Projection</h3>
+    <div class="projection-grid" id="projection-grid"></div>
+  </div>
+
+  <!-- Firm Suggestions -->
+  <div class="strategy-panel" id="suggestions-panel">
+    <h3>Quick Add Firms</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Firm</th>
+          <th>Max Accounts</th>
+          <th>Eval Cost</th>
+          <th>Payout Speed</th>
+          <th>Profit Split</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="suggestions-body">
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recommendations Section -->
+  <div class="section-gap">
+    <div class="section-title">Prop Firm Recommendations — 50K Accounts</div>
+  </div>
+
+  <!-- Top Picks -->
+  <div class="rec-picks" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+    <div style="background:linear-gradient(135deg,#161b22 0%,#121a15 100%);border:1px solid rgba(92,184,92,0.25);border-radius:10px;padding:20px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#5CB85C;margin-bottom:8px;font-weight:600;">Best Value</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">My Funded Futures</div>
+      <div style="font-size:13px;color:#8899aa;margin-bottom:12px;">$77/mo, no activation fee, no daily loss limit</div>
+      <div style="font-size:12px;color:#5CB85C;">Trustpilot 4.8/5 — highest rated</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#161b22 0%,#121520 100%);border:1px solid rgba(88,166,255,0.25);border-radius:10px;padding:20px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#58a6ff;margin-bottom:8px;font-weight:600;">Cheapest One-Time</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">Nexgen ProTrader</div>
+      <div style="font-size:13px;color:#8899aa;margin-bottom:12px;">$90 total ($25 eval + $65 activation), path to 100% split</div>
+      <div style="font-size:12px;color:#58a6ff;">No daily loss limit, no monthly fees</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#161b22 0%,#1a1518 100%);border:1px solid rgba(232,146,58,0.25);border-radius:10px;padding:20px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#E8923A;margin-bottom:8px;font-weight:600;">Most Accounts</div>
+      <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">Apex Trader Funding</div>
+      <div style="font-size:13px;color:#8899aa;margin-bottom:12px;">20 accounts, ~$20-41/mo on sale, 100% first $25K</div>
+      <div style="font-size:12px;color:#E8923A;">Caps at 6 payouts per account (~$13.5K max)</div>
+    </div>
+  </div>
+
+  <!-- Full Comparison Table -->
+  <div class="strategy-panel">
+    <h3>Full Comparison — All Researched Firms (50K Accounts)</h3>
+    <div style="overflow-x:auto;">
+    <table id="rec-table">
+      <thead>
+        <tr>
+          <th style="cursor:pointer;" onclick="sortRecTable(0)">Firm</th>
+          <th style="cursor:pointer;" onclick="sortRecTable(1)">Cost</th>
+          <th>Model</th>
+          <th style="cursor:pointer;" onclick="sortRecTable(3)">Split</th>
+          <th>Payout Speed</th>
+          <th style="cursor:pointer;" onclick="sortRecTable(5)">Max Accts</th>
+          <th>Target</th>
+          <th>Drawdown</th>
+          <th>Daily Loss</th>
+          <th style="cursor:pointer;" onclick="sortRecTable(8)">Rating</th>
+          <th>Key Pro</th>
+          <th>Key Con</th>
+        </tr>
+      </thead>
+      <tbody id="rec-table-body"></tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Category Winners -->
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
+    <div class="strategy-panel" style="margin-bottom:0;">
+      <h3>Fastest Payouts</h3>
+      <table>
+        <tbody>
+          <tr><td style="color:#5CB85C;font-weight:600;">1. Phidias</td><td>1-4 hours</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">2. TickTick Trader</td><td>~2 hours</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">3. TopOne Futures</td><td>Same day</td></tr>
+          <tr><td style="color:#8899aa;">4. TradeDay</td><td>Next business day</td></tr>
+          <tr><td style="color:#8899aa;">5. Nexgen / FundedNext</td><td>~24 hours</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="strategy-panel" style="margin-bottom:0;">
+      <h3>No Daily Loss Limit</h3>
+      <table>
+        <tbody>
+          <tr><td style="color:#5CB85C;font-weight:600;">My Funded Futures</td><td>$77/mo — 4.8 rating</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">Nexgen ProTrader</td><td>$90 one-time — 4.5 rating</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">TradeDay (Intraday)</td><td>~$88-105/mo — 4.5 rating</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:#556677;margin-top:8px;">No DLL means you won't get stopped out on a single bad trade — only the trailing drawdown matters.</p>
+    </div>
+    <div class="strategy-panel" style="margin-bottom:0;">
+      <h3>Best for Scaling (Most Accounts)</h3>
+      <table>
+        <tbody>
+          <tr><td style="color:#E8923A;font-weight:600;">Apex</td><td>20 accounts (but 6-payout cap)</td></tr>
+          <tr><td style="color:#E8923A;font-weight:600;">Phidias</td><td>15 accounts (no cap)</td></tr>
+          <tr><td style="color:#E8923A;font-weight:600;">FundedNext</td><td>12 accounts (5-payout cap on Bolt)</td></tr>
+          <tr><td style="color:#8899aa;">Most others</td><td>5 accounts</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="strategy-panel" style="margin-bottom:0;">
+      <h3>Best Profit Split</h3>
+      <table>
+        <tbody>
+          <tr><td style="color:#5CB85C;font-weight:600;">Apex</td><td>100% first $25K, then 90%</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">TickTick Trader</td><td>100% first 3 months, then 90%</td></tr>
+          <tr><td style="color:#5CB85C;font-weight:600;">Nexgen</td><td>80% → 100% after 16 payouts</td></tr>
+          <tr><td style="color:#8899aa;">FFF / Bulenox</td><td>90% (first $10K at 100%)</td></tr>
+          <tr><td style="color:#8899aa;">BluSky / Phidias</td><td>90% / 80→90%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Warning Box -->
+  <div style="background:linear-gradient(135deg,#161b22 0%,#1a1215 100%);border:1px solid rgba(224,92,92,0.25);border-radius:10px;padding:20px;margin-bottom:20px;">
+    <div style="font-size:13px;font-weight:600;color:#E05C5C;margin-bottom:8px;">Warnings</div>
+    <ul style="margin:0;padding-left:18px;font-size:13px;color:#c0c0c0;line-height:1.8;">
+      <li><strong>FundingTicks</strong> shut down Jan 2026 — do not sign up</li>
+      <li><strong>Apex</strong> caps accounts at 6 payouts (~$13.5K max per account) as of Mar 2026</li>
+      <li><strong>FundedNext Bolt</strong> has a 3.5% withdrawal fee on ALL payouts</li>
+      <li>EOD trailing drawdown is always more forgiving than intraday trailing — prefer EOD firms</li>
+      <li>One-time fee firms (Nexgen, Phidias) are cheaper long-term if eval takes 2+ months</li>
+      <li>Always verify current rules and pricing on the firm's website before purchasing</li>
+    </ul>
+  </div>
+
+  <div style="font-size:11px;color:#556677;text-align:center;padding:16px;">
+    Data compiled April 2026 from SmartPropFirm, PropScore, SaveOnPropFirms, PropFirmMatch, QuantVPS, PropTradingVibes, and firm websites.
+  </div>
+
+  </div><!-- /view-plan -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- ACCOUNTS VIEW (live trading data)                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view" id="view-accounts">
+
+  <div class="section-gap">
+    <div class="section-title">Accounts &amp; Connections</div>
+  </div>
+
+  <style>
+    /* Tab panels are now always visible inside their top-level view */
+    .tab-panel { display: block; }
+
+    .conn-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .conn-info { flex: 1; }
+    .conn-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .conn-meta { font-size: 12px; color: #556677; margin-top: 3px; }
+    .conn-status {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+    .conn-status.ok       { background: rgba(92,184,92,0.15); color: #5CB85C; border: 1px solid rgba(92,184,92,0.3); }
+    .conn-status.error    { background: rgba(224,92,92,0.15); color: #E05C5C; border: 1px solid rgba(224,92,92,0.3); }
+    .conn-status.syncing  { background: rgba(88,166,255,0.15); color: #58a6ff; border: 1px solid rgba(88,166,255,0.3); }
+    .conn-status.new      { background: rgba(232,146,58,0.15); color: #E8923A; border: 1px solid rgba(232,146,58,0.3); }
+    .conn-status.manual   { background: rgba(180,180,180,0.15); color: #c0c0c0; border: 1px solid rgba(180,180,180,0.3); }
+
+    .live-acct-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: border-color 0.2s;
+    }
+    .live-acct-card.profit { border-color: rgba(92,184,92,0.3); }
+    .live-acct-card.loss   { border-color: rgba(224,92,92,0.3); }
+    .live-acct-card.danger { border-color: rgba(224,92,92,0.6); background: linear-gradient(135deg,#161b22 0%,#1a1215 100%); }
+    .live-acct-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .live-acct-firm { font-size: 11px; color: #556677; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .live-acct-balance { font-size: 20px; font-weight: 700; color: #fff; }
+    .live-acct-pnl { font-size: 13px; margin-top: 4px; }
+    .live-acct-pnl.positive { color: #5CB85C; }
+    .live-acct-pnl.negative { color: #E05C5C; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 28px;
+      width: 500px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin: 0 0 18px; font-size: 16px; color: #fff; }
+    .modal .form-row { margin-bottom: 14px; }
+    .modal label {
+      display: block;
+      font-size: 11px;
+      color: #556677;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .modal input, .modal select {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: #e0e0e0;
+      font-size: 13px;
+      outline: none;
+    }
+    .modal input:focus, .modal select:focus { border-color: #5CB85C; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    .journal-filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .journal-filters select, .journal-filters input {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: #e0e0e0;
+      font-size: 12px;
+    }
+
+    .journal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .journal-table th {
+      background: #161b22;
+      padding: 10px;
+      text-align: left;
+      color: #556677;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #21262d;
+      position: sticky;
+      top: 0;
+    }
+    .journal-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #161b22;
+      color: #c0c0c0;
+    }
+    .journal-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .journal-table .pnl-pos { color: #5CB85C; font-weight: 600; }
+    .journal-table .pnl-neg { color: #E05C5C; font-weight: 600; }
+
+    /* ── Calendar (slick redesign) ──────────────────────────────────── */
+    .cal-wrap {
+      background: linear-gradient(180deg, #161b22 0%, #121720 100%);
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 24px 28px 20px;
+      margin-bottom: 24px;
+    }
+    .cal-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #21262d;
+    }
+    .cal-summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cal-summary-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #556677;
+      font-weight: 600;
+    }
+    .cal-summary-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+    }
+    .cal-summary-value.pos { color: #5CB85C; }
+    .cal-summary-value.neg { color: #E05C5C; }
+    .cal-summary-sub { font-size: 11px; color: #8899aa; margin-top: 2px; }
+
+    .cal-months-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 28px;
+    }
+
+    .cal-month { }
+    .cal-month-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cal-month-pnl {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .cal-month-pnl.pos { color: #5CB85C; }
+    .cal-month-pnl.neg { color: #E05C5C; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .cal-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #445566;
+      text-align: center;
+      padding: 2px 0 8px;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .cal-day {
+      min-height: 64px;
+      background: #0f141b;
+      border: 1px solid #1a1f28;
+      border-radius: 7px;
+      padding: 6px 8px;
+      color: #445566;
+      cursor: default;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .cal-day.weekend { background: #0b0f14; opacity: 0.5; }
+    .cal-day.has-data { cursor: pointer; }
+    .cal-day.has-data:hover {
+      transform: translateY(-2px) scale(1.06);
+      z-index: 3;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+    .cal-day.today {
+      border-color: #58a6ff !important;
+      box-shadow: 0 0 0 1px #58a6ff, 0 0 12px rgba(88,166,255,0.4);
+    }
+    .cal-day.empty-slot { background: transparent; border-color: transparent; min-height: 0; }
+    .cal-day-num {
+      font-weight: 600;
+      color: #8899aa;
+      font-size: 11px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .cal-day.has-data .cal-day-num { color: #ffffff; }
+    .cal-day-pnl {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-top: auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cal-day-trades {
+      font-size: 9px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 600;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .cal-day-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1c2333;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 8px 12px;
+      white-space: nowrap;
+      font-size: 11px;
+      color: #e0e0e0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      display: none;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .cal-day:hover .cal-day-tooltip { display: block; }
+
+    .pattern-section { margin-bottom: 24px; }
+    .pattern-section h4 { margin: 0 0 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #556677; }
+    .rec-item {
+      background: #161b22;
+      border-left: 3px solid #30363d;
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #c0c0c0;
+    }
+    .rec-item.success { border-left-color: #5CB85C; }
+    .rec-item.warning { border-left-color: #E8923A; }
+    .rec-item.danger  { border-left-color: #E05C5C; }
+    .rec-item.info    { border-left-color: #58a6ff; }
+
+    .stat-grid-small {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-grid-small .stat-card {
+      padding: 12px 14px;
+    }
+  </style>
+
+  <!-- Live Accounts (primary content for the Accounts view) -->
+  <div class="tab-panel" id="tab-accounts">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;margin-bottom:12px;">Live Accounts</div>
+    <div id="live-accounts-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;"></div>
+  </div>
+
+  <!-- Connections (secondary, for adding / refreshing data) -->
+  <div class="tab-panel" id="tab-connections" style="margin-top:36px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;">Connections</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" style="padding:6px 14px;font-size:12px;background:rgba(88,166,255,0.15);color:#58a6ff;border:1px solid rgba(88,166,255,0.3);" onclick="openBulkImportModal()">📷 Bulk Import (Screenshot + CSV)</button>
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;" onclick="openAddConnectionModal()">+ Add Connection</button>
+      </div>
+    </div>
+    <div id="connections-list"></div>
+  </div>
+
+  </div><!-- /view-accounts -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- JOURNAL VIEW                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view" id="view-journal">
+    <div class="section-gap">
+      <div class="section-title">Trade Journal</div>
+    </div>
+    <div class="tab-panel" id="tab-journal">
+      <div class="journal-filters">
+        <select id="journal-filter-firm"><option value="">All Firms</option></select>
+        <select id="journal-filter-owner" style="display:none;"><option value="">All</option></select>
+        <select id="journal-filter-symbol"><option value="">All Symbols</option></select>
+        <input type="date" id="journal-filter-from" title="From date">
+        <input type="date" id="journal-filter-to" title="To date">
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;" onclick="loadJournal()">Apply</button>
+        <button class="btn" style="padding:6px 14px;font-size:12px;background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="exportJournalCSV()">Export CSV</button>
+      </div>
+      <div class="stat-grid-small" id="journal-stats"></div>
+      <div style="max-height:700px;overflow-y:auto;border-radius:10px;border:1px solid #21262d;">
+        <table class="journal-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Account</th>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Qty</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Duration</th>
+              <th style="text-align:right;">P&amp;L</th>
+              <th style="text-align:center;">Note</th>
+            </tr>
+          </thead>
+          <tbody id="journal-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- EQUITY VIEW                                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div class="view" id="view-equity">
+    <div class="section-gap">
+      <div class="section-title">Equity Curves</div>
+    </div>
+    <div class="tab-panel" id="tab-equity">
+      <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+        <select id="equity-account-select" style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:8px 12px;color:#e0e0e0;font-size:13px;">
+          <option value="">All Accounts (Aggregate)</option>
+        </select>
+        <span style="font-size:12px;color:#556677;">Select an account to view its equity curve and drawdown</span>
+      </div>
+      <div id="equity-container"></div>
+    </div>
+  </div>
+
+  <!-- ─── Modals ──────────────────────────────────────────────────────── -->
+
+  <!-- Add Connection Modal -->
+  <div class="modal-overlay" id="modal-add-connection">
+    <div class="modal">
+      <h2>Add Connection</h2>
+      <div class="form-row">
+        <label>Firm</label>
+        <select id="new-conn-firm" onchange="toggleNewConnCustomFirm()">
+          <option value="tpt">Take Profit Trader</option>
+          <option value="lucid">Lucid Trading</option>
+          <option value="tradeify">Tradeify</option>
+          <option value="mffu">My Funded Futures</option>
+          <option value="apex">Apex Trader Funding</option>
+          <option value="daytraders">Day Traders</option>
+          <option value="alpha">Alpha Futures</option>
+          <option value="topstepx">TopstepX (CSV import)</option>
+          <option value="__custom__">+ Custom firm name…</option>
+        </select>
+        <input type="text" id="new-conn-firm-custom" placeholder="e.g. Bulenox, FundedNext" style="display:none;margin-top:8px;">
+      </div>
+      <div class="form-row">
+        <label>Label (to tell connections apart)</label>
+        <input type="text" id="new-conn-label" placeholder="e.g. MFFU 50K Group, Main PA">
+      </div>
+      <div style="font-size:11px;color:#8899aa;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 12px;margin-bottom:12px;line-height:1.5;">
+        Creates an empty CSV-import connection. Use <strong>📷 Bulk Import</strong> to upload a screenshot + trade CSV, or add trades later via the per-connection <strong>Upload CSV</strong> button.
+      </div>
+      <div class="modal-actions">
+        <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-add-connection')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAddConnection()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Config Modal -->
+  <div class="modal-overlay" id="modal-account-config">
+    <div class="modal">
+      <h2>Account Configuration</h2>
+      <div style="font-size:12px;color:#8899aa;margin-bottom:16px;line-height:1.6;">
+        Set the starting balance and drawdown rules so the system can track your distance to the bust limit. Required for the Equity tab.
+      </div>
+      <div id="account-config-account-name" style="font-size:13px;color:#fff;margin-bottom:14px;font-weight:600;"></div>
+      <div class="form-row">
+        <label>Lifecycle Stage</label>
+        <select id="cfg-manual-status">
+          <option value="">Auto (derive from P&amp;L vs profit target)</option>
+          <option value="eval">In Evaluation</option>
+          <option value="eval_passed">Eval Passed</option>
+          <option value="funded">Funded</option>
+          <option value="payout">Payout Ready</option>
+          <option value="failed">Busted / Failed</option>
+        </select>
+        <div style="font-size:10px;color:#556677;margin-top:4px;">Auto = system determines based on drawdown + profit target. Override to manually mark progression.</div>
+      </div>
+      <div class="form-row">
+        <label>Starting Balance ($)</label>
+        <input type="number" id="cfg-starting" value="50000" step="100">
+      </div>
+      <div class="form-row">
+        <label>Drawdown Type</label>
+        <select id="cfg-dd-type">
+          <option value="static">Static (from starting balance)</option>
+          <option value="eod_trailing" selected>EOD Trailing (most prop firms)</option>
+          <option value="intraday_trailing">Intraday Trailing</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Drawdown Amount ($)</label>
+        <input type="number" id="cfg-dd-amount" value="2000" step="100">
+      </div>
+      <div class="form-row">
+        <label>DD Locks At Balance ($, optional)</label>
+        <input type="number" id="cfg-dd-lock" placeholder="e.g. 52000 — leave blank if no lock">
+      </div>
+      <div class="form-row">
+        <label>Profit Target ($, optional)</label>
+        <input type="number" id="cfg-profit-target" placeholder="e.g. 3000">
+      </div>
+      <div class="form-row">
+        <label>Daily Loss Limit ($, optional)</label>
+        <input type="number" id="cfg-dll" placeholder="e.g. 1000">
+      </div>
+      <div class="modal-actions">
+        <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-account-config')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAccountConfig()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade Note Modal -->
+  <div class="modal-overlay" id="modal-trade-note">
+    <div class="modal">
+      <h2>Trade Note</h2>
+      <div id="trade-note-summary" style="font-size:12px;color:#8899aa;margin-bottom:16px;"></div>
+      <div class="form-row">
+        <label>Setup</label>
+        <select id="trade-note-setup">
+          <option value="">— select —</option>
+          <option value="breakout">Breakout</option>
+          <option value="reversal">Reversal</option>
+          <option value="trend_continuation">Trend Continuation</option>
+          <option value="pullback">Pullback</option>
+          <option value="range_play">Range Play</option>
+          <option value="news">News</option>
+          <option value="scalp">Scalp</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Tags (comma-separated)</label>
+        <input type="text" id="trade-note-tags" placeholder="e.g. morning, fomc, gann_level">
+      </div>
+      <div class="form-row">
+        <label>Self Rating (1-5)</label>
+        <select id="trade-note-rating">
+          <option value="">—</option>
+          <option value="1">1 - Bad execution</option>
+          <option value="2">2</option>
+          <option value="3">3 - Neutral</option>
+          <option value="4">4</option>
+          <option value="5">5 - Perfect</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Note</label>
+        <textarea id="trade-note-text" rows="4" style="width:100%;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px;color:#e0e0e0;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-trade-note')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitTradeNote()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Import Modal -->
+  <div class="modal-overlay" id="modal-bulk-import">
+    <div class="modal" style="width:640px;max-width:95vw;">
+      <h2>Bulk Import — Screenshot + CSV</h2>
+      <div style="font-size:12px;color:#8899aa;margin-bottom:16px;line-height:1.6;">
+        Create new accounts or refresh existing ones. Upload a screenshot + trade source to add accounts, or pick an existing connection to just refresh its trades.
+      </div>
+
+      <!-- Step 1: pick target + upload screenshot -->
+      <div id="bulk-step-1">
+        <div class="form-row">
+          <label>Target Connection</label>
+          <select id="bulk-target">
+            <option value="">Create new connection</option>
+          </select>
+          <div style="font-size:10px;color:#556677;margin-top:4px;" id="bulk-target-help">
+            Select an existing connection to update its accounts &amp; trades, or create a new one.
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Account Screenshot (PNG/JPG) <span id="bulk-image-optional-hint" style="font-weight:normal;text-transform:none;letter-spacing:0;color:#556677;"></span></label>
+          <input type="file" id="bulk-image" accept="image/*">
+        </div>
+        <div class="modal-actions">
+          <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-bulk-import')">Cancel</button>
+          <button class="btn btn-primary" onclick="parseBulkScreenshot()">Continue &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 2: confirm parsed accounts + collect missing info -->
+      <div id="bulk-step-2" style="display:none;">
+        <div style="background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:14px;margin-bottom:16px;max-height:240px;overflow-y:auto;">
+          <div style="font-size:11px;color:#556677;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Detected Accounts</div>
+          <div id="bulk-detected-accounts" style="font-size:12px;color:#c0c0c0;font-family:monospace;"></div>
+        </div>
+        <div class="form-row">
+          <label>Prop Firm <span id="bulk-firm-detected" style="color:#5CB85C;font-size:10px;font-weight:normal;text-transform:none;letter-spacing:0;"></span></label>
+          <select id="bulk-firm" onchange="toggleBulkCustomFirm()">
+            <option value="tpt">Take Profit Trader</option>
+            <option value="lucid">Lucid Trading</option>
+            <option value="tradeify">Tradeify</option>
+            <option value="mffu">My Funded Futures</option>
+            <option value="apex">Apex Trader Funding</option>
+            <option value="topstepx">TopstepX</option>
+            <option value="daytraders">Day Traders</option>
+            <option value="alpha">Alpha Futures</option>
+            <option value="__custom__">+ Custom firm name…</option>
+          </select>
+          <input type="text" id="bulk-firm-custom" placeholder="e.g. Bulenox, FundedNext" style="display:none;margin-top:8px;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 12px;color:#e0e0e0;font-size:13px;width:100%;outline:none;">
+        </div>
+        <div class="form-row">
+          <label>Group Label</label>
+          <input type="text" id="bulk-label" placeholder="e.g. MFFU 50K Group">
+        </div>
+        <div class="form-row">
+          <label>Step 2 · Trade Source</label>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button class="btn" id="src-csv-btn" onclick="bulkSetSource('csv')" style="flex:1;padding:8px;font-size:12px;background:rgba(92,184,92,0.15);color:#5CB85C;border:1px solid rgba(92,184,92,0.3);">📄 CSV Upload</button>
+            <button class="btn" id="src-url-btn" onclick="bulkSetSource('url')" style="flex:1;padding:8px;font-size:12px;background:#21262d;color:#8899aa;border:1px solid #30363d;">🔗 TopstepX Share URL</button>
+          </div>
+          <input type="file" id="bulk-csv" accept=".csv">
+          <input type="text" id="bulk-share-url" placeholder="https://www.topstepx.com/share/stats?share=21446279" style="display:none;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 12px;color:#e0e0e0;font-size:13px;width:100%;outline:none;">
+          <div style="font-size:11px;color:#556677;margin-top:6px;" id="bulk-source-help">Upload the trade history CSV from one account. Supports Tradovate Orders export format.</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="bulkBackToStep1()">&larr; Back</button>
+          <button class="btn btn-primary" onclick="submitBulkImport()">Import All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CSV Upload Modal -->
+  <div class="modal-overlay" id="modal-csv-upload">
+    <div class="modal">
+      <h2>Upload CSV</h2>
+      <div style="font-size:12px;color:#8899aa;margin-bottom:16px;line-height:1.6;">
+        Upload a trade history CSV exported from TopstepX or Tradovate. The format will be auto-detected.
+      </div>
+      <div class="form-row">
+        <label>CSV File</label>
+        <input type="file" id="csv-file" accept=".csv">
+      </div>
+      <div id="csv-target-connection" style="display:none;"></div>
+      <div class="modal-actions">
+        <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-csv-upload')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCSVUpload()">Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── DATA ─────────────────────────────────────────────────────────────────
+
+    const STORAGE_KEY = 'funded-roadmap-v2';
+
+    // Wipe the old v1 storage if it exists (one-time cleanup)
+    try { localStorage.removeItem('funded-roadmap-v1'); } catch {}
+
+    const DEFAULT_FIRMS = [];
+
+    const SUGGESTIONS = [
+      { name: 'My Funded Futures',     max: 5,  cost: '$77/mo',         speed: '~5 business days',  split: '80-90%' },
+      { name: 'Nexgen ProTrader',      max: 5,  cost: '$90 once',       speed: '~24 hours',         split: '80%→100%' },
+      { name: 'Phidias',               max: 15, cost: '$116 once',      speed: '1-4 hours',         split: '80%→90%' },
+      { name: 'Apex Trader Funding',   max: 20, cost: '~$20-41/mo',     speed: '~5 business days',  split: '100% first $25K, then 90%' },
+      { name: 'Funded Futures Family', max: 5,  cost: '$79/mo',         speed: 'Weekly',            split: '90% (first $10K at 100%)' },
+      { name: 'TradeDay',              max: 3,  cost: '~$88-105/mo',    speed: 'Next biz day',      split: '80%→95%' },
+      { name: 'FundedNext',            max: 12, cost: '~$70 once',      speed: '~24 hours',         split: '80%' },
+      { name: 'BluSky Trading',        max: 5,  cost: '~$49-112',       speed: '~4 days',           split: '90%' },
+      { name: 'TickTick Trader',       max: 5,  cost: '$145 once',      speed: '~2 hours',          split: '100%→90%' },
+      { name: 'Bulenox',               max: 5,  cost: '$175/mo+$148',   speed: '~5 business days',  split: '90%' },
+    ];
+
+    let firms = [];
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { firms = JSON.parse(saved); return; } catch(e) {}
+      }
+      firms = JSON.parse(JSON.stringify(DEFAULT_FIRMS));
+    }
+
+    function saveData() {
+      // Only persist manual entries — live ones are re-derived from the server
+      const manual = firms.filter(f => !f.live);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(manual));
+    }
+
+    // ─── RENDER ───────────────────────────────────────────────────────────────
+
+    function render() {
+      renderFirms();
+      renderStats();
+      renderProjection();
+      renderSuggestions();
+      saveData();
+    }
+
+    // ─── Persistent firm ordering (for drag & drop) ───────────────────────
+    const FIRM_ORDER_KEY = 'funded-roadmap-firm-order';
+    function loadFirmOrder() {
+      try { return JSON.parse(localStorage.getItem(FIRM_ORDER_KEY) || '[]'); }
+      catch { return []; }
+    }
+    function saveFirmOrder(order) {
+      localStorage.setItem(FIRM_ORDER_KEY, JSON.stringify(order));
+    }
+    function applyFirmOrder(arr) {
+      const order = loadFirmOrder();
+      if (order.length === 0) return arr;
+      const indexed = {};
+      order.forEach((id, i) => { indexed[id] = i; });
+      return [...arr].sort((a, b) => {
+        const ai = indexed[a.id] ?? 1e9;
+        const bi = indexed[b.id] ?? 1e9;
+        return ai - bi;
+      });
+    }
+
+    function renderFirms() {
+      const grid = document.getElementById('firms-grid');
+      grid.innerHTML = '';
+
+      // Sort using stored drag order
+      const ordered = applyFirmOrder(firms);
+
+      ordered.forEach((firm) => {
+        // Keep fi mapped to the original index in `firms` so cycleSlot / removeFirm still work
+        const fi = firms.indexOf(firm);
+        const funded = firm.slots.filter(s => s === 'funded' || s === 'payout').length;
+        const evalPassed = firm.slots.filter(s => s === 'eval_passed').length;
+        const payoutReady = firm.slots.filter(s => s === 'payout').length;
+        const evals  = firm.slots.filter(s => s === 'eval').length;
+        const failed = firm.slots.filter(s => s === 'failed').length;
+        const total  = firm.slots.length;
+
+        // Celebration = at least one account in eval_passed or payout state
+        const celebrating = evalPassed > 0 || payoutReady > 0;
+
+        const card = document.createElement('div');
+        card.className = 'firm-card' + (celebrating ? ' celebrating' : '');
+        card.draggable = true;
+        card.dataset.firmId = firm.id;
+
+        let badgeClass = 'badge-red';
+        let badgeText = 'Not Started';
+        if (funded === total && total > 0) { badgeClass = 'badge-green'; badgeText = 'All Funded'; }
+        else if (funded > 0)  { badgeClass = 'badge-blue';  badgeText = funded + '/' + total + ' Funded'; }
+        else if (evalPassed > 0) { badgeClass = 'badge-blue'; badgeText = evalPassed + ' Eval Passed'; }
+        else if (evals > 0)   { badgeClass = 'badge-yellow'; badgeText = evals + ' In Eval'; }
+        if (failed > 0 && firm.live) { badgeClass = 'badge-red'; badgeText = failed + ' Busted'; }
+
+        const liveBadge = firm.live
+          ? `<span class="firm-badge badge-green" style="background:rgba(88,166,255,0.15);color:#58a6ff;border-color:rgba(88,166,255,0.3);" title="Auto-synced from live connection">⚡ LIVE</span>`
+          : '';
+        const removeBtn = firm.live
+          ? ''
+          : `<button class="btn btn-danger" onclick="removeFirm(${fi})" title="Remove firm">&times;</button>`;
+
+        // Stable firm/owner codes for edit operations
+        const firmCode = firm.live && firm.accounts && firm.accounts[0] ? firm.accounts[0].firm : null;
+        const ownerCode = firm.live && firm.accounts && firm.accounts[0] ? firm.accounts[0].owner : null;
+
+        // Prefer net_pnl_from_trades (summed from trades table) when available,
+        // fall back to realized_pnl stored on the account record.
+        const totalPnl = firm.live && firm.accounts
+          ? firm.accounts.reduce((s, a) => s + (a.net_pnl_from_trades ?? a.realized_pnl ?? 0), 0)
+          : null;
+        const tradeCount = firm.live && firm.accounts
+          ? firm.accounts.reduce((s, a) => s + (a.trade_count_from_trades ?? 0), 0)
+          : 0;
+
+        const editBtn = firm.live && firm.accounts && firm.accounts[0]
+          ? `<button class="btn" style="padding:2px 6px;font-size:11px;background:transparent;color:#556677;border:none;cursor:pointer;margin-left:4px;" onclick="openFirmEdit('${firm.id}')" title="Edit firm">✎</button>`
+          : '';
+
+        // Celebration banner shown when eval_passed or payout slots exist
+        const celebrationBanner = celebrating ? `
+          <div class="celebration-banner">
+            <span class="cb-emoji">${payoutReady > 0 ? '💰' : '🎉'}</span>
+            <div>
+              ${evalPassed > 0 ? `<strong>${evalPassed} account${evalPassed === 1 ? '' : 's'} passed eval!</strong> ` : ''}
+              ${payoutReady > 0 ? `<strong>${payoutReady} payout ready</strong> ` : ''}
+              <span class="cb-warning">⚠ Do not trade ${evalPassed > 0 && payoutReady > 0 ? 'these accounts' : evalPassed > 0 ? 'the eval account' : 'until payout received'}</span>
+            </div>
+          </div>
+        ` : '';
+
+        card.innerHTML = `
+          <div class="firm-header">
+            <div>
+              <div class="firm-name"><span class="firm-drag-handle" title="Drag to reorder">⋮⋮</span>${firm.name}${editBtn}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${celebrating ? '<span style="font-size:16px;">🎉</span>' : ''}
+              ${liveBadge}
+              <span class="firm-badge ${badgeClass}">${badgeText}</span>
+              ${removeBtn}
+            </div>
+          </div>
+          <div class="firm-edit-area" id="firm-edit-${firm.id}" style="display:none;"></div>
+          <div class="account-slots">
+            ${firm.slots.map((s, si) => {
+              const acct = firm.live && firm.accounts ? firm.accounts[si] : null;
+              const tooltip = acct
+                ? `${escapeHtml(acct.name || acct.external_id)} — ${getSlotLabel(s)}${acct.realized_pnl != null ? ' · $' + acct.realized_pnl.toFixed(0) : ''}`
+                : getSlotLabel(s) + (firm.live ? '' : ' — click to change');
+              return `
+                <div class="slot slot-${s}" ${firm.live ? '' : `onclick="cycleSlot(${fi}, ${si})"`} title="${tooltip}">
+                  <span class="tooltip">${tooltip}</span>
+                  ${si + 1}
+                </div>
+              `;
+            }).join('')}
+          </div>
+          ${celebrationBanner}
+          <div class="firm-footer">
+            <span>${funded}/${total} funded${failed > 0 ? ' · ' + failed + ' busted' : ''}</span>
+            ${totalPnl != null
+              ? `<span class="firm-cost" style="display:flex;align-items:center;gap:6px;">
+                   <span style="font-size:10px;color:#556677;text-transform:uppercase;letter-spacing:1px;">Profit</span>
+                   <span style="color:${totalPnl >= 0 ? '#5CB85C' : '#E05C5C'};font-weight:700;font-size:13px;">${totalPnl >= 0 ? '+' : ''}$${totalPnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                 </span>`
+              : `<span class="firm-cost">$${firm.costPerAcct} per eval</span>`}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      wireFirmDragDrop(grid);
+    }
+
+    // ─── Drag and drop for firm cards ─────────────────────────────────────
+
+    let dragSrcFirmId = null;
+
+    function wireFirmDragDrop(grid) {
+      const cards = grid.querySelectorAll('.firm-card');
+      cards.forEach(card => {
+        card.addEventListener('dragstart', e => {
+          dragSrcFirmId = card.dataset.firmId;
+          card.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', dragSrcFirmId);
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('dragging');
+          document.querySelectorAll('.firm-card.drop-target').forEach(c => c.classList.remove('drop-target'));
+          dragSrcFirmId = null;
+        });
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (card.dataset.firmId !== dragSrcFirmId) {
+            card.classList.add('drop-target');
+          }
+        });
+        card.addEventListener('dragleave', () => {
+          card.classList.remove('drop-target');
+        });
+        card.addEventListener('drop', e => {
+          e.preventDefault();
+          const srcId = dragSrcFirmId;
+          const dstId = card.dataset.firmId;
+          card.classList.remove('drop-target');
+          if (!srcId || srcId === dstId) return;
+          reorderFirms(srcId, dstId);
+        });
+      });
+    }
+
+    function reorderFirms(srcId, dstId) {
+      // Work on the currently rendered order (applyFirmOrder(firms))
+      // so drops respect what the user sees, not the raw firms array.
+      const ordered = applyFirmOrder(firms);
+      const ids = ordered.map(f => f.id);
+      const si = ids.indexOf(srcId);
+      const di = ids.indexOf(dstId);
+      if (si === -1 || di === -1) return;
+      const [moved] = ids.splice(si, 1);
+      ids.splice(di, 0, moved);
+      saveFirmOrder(ids);
+      render();
+    }
+
+    function getSlotLabel(s) {
+      return { empty: 'Not Started', eval: 'In Evaluation', eval_passed: 'Eval Passed', funded: 'Funded', payout: 'Payout Ready', failed: 'Busted / Failed' }[s] || s;
+    }
+
+    function cycleSlot(fi, si) {
+      // Live-derived slots are read-only; ignore clicks on them
+      if (firms[fi] && firms[fi].live) return;
+      const order = ['empty', 'eval', 'eval_passed', 'funded', 'payout'];
+      const curr = order.indexOf(firms[fi].slots[si]);
+      firms[fi].slots[si] = order[(curr + 1) % order.length];
+      render();
+    }
+
+    function renderStats() {
+      let totalSlots = 0, evalCount = 0, evalPassedCount = 0, fundedCount = 0, payoutCount = 0, emptyCount = 0;
+      firms.forEach(f => {
+        f.slots.forEach(s => {
+          totalSlots++;
+          if (s === 'empty')       emptyCount++;
+          if (s === 'eval')        evalCount++;
+          if (s === 'eval_passed') evalPassedCount++;
+          if (s === 'funded')      fundedCount++;
+          if (s === 'payout')    { payoutCount++; fundedCount++; }
+        });
+      });
+
+      const gap = Math.max(0, 30 - totalSlots);
+      const fundedTotal = fundedCount;
+
+      document.getElementById('stat-total').textContent = totalSlots;
+      document.getElementById('stat-total-sub').textContent = 'across ' + firms.length + ' entries';
+      document.getElementById('stat-eval').textContent = evalCount;
+      const evalSubEl = document.getElementById('stat-eval-sub');
+      if (evalSubEl) {
+        evalSubEl.textContent = evalPassedCount > 0
+          ? `${evalPassedCount} eval passed, awaiting funded`
+          : 'working toward funded';
+      }
+      document.getElementById('stat-funded').textContent = fundedTotal;
+      document.getElementById('stat-funded-sub').textContent = Math.round(fundedTotal / 30 * 100) + '% of target';
+      document.getElementById('stat-payout').textContent = payoutCount;
+      document.getElementById('stat-empty').textContent = emptyCount;
+      document.getElementById('stat-gap').textContent = gap;
+      document.getElementById('stat-gap-sub').textContent = gap > 0 ? 'more slots needed' : 'target met!';
+      if (gap === 0) document.getElementById('stat-gap').className = 'stat-value green';
+      else document.getElementById('stat-gap').className = 'stat-value red';
+
+      // Progress ring
+      const circ = 2 * Math.PI * 65;
+      const pct = Math.min(fundedTotal / 30, 1);
+      document.getElementById('ring-fill').style.strokeDashoffset = circ * (1 - pct);
+      document.getElementById('ring-count').textContent = fundedTotal;
+
+      // Gap banner
+      const banner = document.getElementById('gap-banner');
+      if (gap > 0) {
+        banner.style.display = 'flex';
+        document.getElementById('gap-text').textContent = `You need ${gap} more account slots to reach 30`;
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    function renderProjection() {
+      let totalEvalCost = 0, totalSlots = 0, fundedCount = 0, evalsNeeded = 0;
+      firms.forEach(f => {
+        f.slots.forEach(s => {
+          totalSlots++;
+          totalEvalCost += f.costPerAcct;
+          if (s === 'funded' || s === 'payout') fundedCount++;
+          if (s === 'empty') evalsNeeded++;
+        });
+      });
+
+      // Rough projection: avg $500/day/account profit on MNQ, 80% split
+      const dailyPerAcct = 500;
+      const monthlyPerAcct = dailyPerAcct * 20; // 20 trading days
+      const split = 0.80;
+
+      const grid = document.getElementById('projection-grid');
+      grid.innerHTML = `
+        <div class="proj-card">
+          <div class="proj-label">Total Eval Cost (all slots)</div>
+          <div class="proj-value" style="color:#E05C5C;">$${totalEvalCost.toLocaleString()}</div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-label">Remaining Eval Cost</div>
+          <div class="proj-value" style="color:#E8923A;">$${(evalsNeeded * avgCostPerAcct()).toLocaleString()}</div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-label">Currently Funded</div>
+          <div class="proj-value" style="color:#5CB85C;">${fundedCount} accounts</div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-label">Monthly Potential (funded)</div>
+          <div class="proj-value" style="color:#5CB85C;">$${(fundedCount * monthlyPerAcct * split).toLocaleString()}</div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-label">Monthly @ 30 Funded</div>
+          <div class="proj-value" style="color:#58a6ff;">$${(30 * monthlyPerAcct * split).toLocaleString()}</div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-label">Yearly @ 30 Funded</div>
+          <div class="proj-value" style="color:#58a6ff;">$${(30 * monthlyPerAcct * split * 12).toLocaleString()}</div>
+        </div>
+      `;
+    }
+
+    function avgCostPerAcct() {
+      if (firms.length === 0) return 150;
+      return Math.round(firms.reduce((s, f) => s + f.costPerAcct, 0) / firms.length);
+    }
+
+    function renderSuggestions() {
+      const body = document.getElementById('suggestions-body');
+      const existingNames = firms.map(f => f.name.toLowerCase());
+
+      body.innerHTML = SUGGESTIONS.map(s => {
+        const exists = existingNames.includes(s.name.toLowerCase());
+        return `
+          <tr style="${exists ? 'opacity:0.4;' : ''}">
+            <td style="font-weight:600;color:#fff;">${s.name}</td>
+            <td>${s.max}</td>
+            <td>${s.cost}</td>
+            <td>${s.speed}</td>
+            <td>${s.split}</td>
+            <td>${exists ? '<span style="font-size:11px;color:#556677;">Added</span>' : `<button class="btn btn-primary" style="padding:4px 12px;font-size:11px;" onclick="addSuggested('${s.name}', ${s.max})">+ Add</button>`}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Hide panel if all added
+      const allAdded = SUGGESTIONS.every(s => existingNames.includes(s.name.toLowerCase()));
+      document.getElementById('suggestions-panel').style.display = allAdded ? 'none' : 'block';
+    }
+
+    // ─── ACTIONS ──────────────────────────────────────────────────────────────
+
+    function addFirm() {
+      const name  = document.getElementById('add-firm-name').value.trim();
+      const owner = 'me'; // single-owner mode
+      const max   = parseInt(document.getElementById('add-firm-max').value) || 5;
+      const cost  = parseInt(document.getElementById('add-firm-cost').value) || 150;
+
+      if (!name) { alert('Enter a firm name'); return; }
+
+      const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + owner;
+      const slots = Array(max).fill('empty');
+
+      firms.push({ id, name, owner, max, costPerAcct: cost, slots });
+
+      document.getElementById('add-firm-name').value = '';
+      render();
+    }
+
+    function addSuggested(name, max) {
+      const owner = 'me';
+      const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + owner;
+      const slots = Array(max).fill('empty');
+      firms.push({ id, name, owner, max, costPerAcct: 150, slots });
+      render();
+    }
+
+    function removeFirm(idx) {
+      if (confirm('Remove ' + firms[idx].name + '?')) {
+        firms.splice(idx, 1);
+        render();
+      }
+    }
+
+    function resetAll() {
+      if (confirm('Reset all data to defaults?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadData();
+        render();
+      }
+    }
+
+    // ─── RECOMMENDATION TABLE ────────────────────────────────────────────────
+
+    const REC_DATA = [
+      { firm:'Nexgen ProTrader',  cost:'$90 once',       sortCost:90,   model:'One-time',  split:'80→100%',  speed:'~24 hrs',       maxAccts:5,  target:'$2,750', drawdown:'EOT trailing, locks', dll:'None',   rating:4.5, pro:'Path to 100% split after 16 payouts', con:'AMP/CQG only (no Tradovate)' },
+      { firm:'My Funded Futures', cost:'$77/mo',         sortCost:77,   model:'Monthly',   split:'80-90%',   speed:'~5 biz days',   maxAccts:5,  target:'$3,000', drawdown:'EOD $1,500, locks',    dll:'None',   rating:4.8, pro:'No activation fee, no DLL, drawdown locks', con:'Monthly fee adds up if slow' },
+      { firm:'FundedNext Bolt',   cost:'~$70 once',      sortCost:70,   model:'One-time',  split:'80%',      speed:'~24 hrs',       maxAccts:12, target:'$3,000', drawdown:'EOD $2,000',           dll:'$1,000', rating:4.5, pro:'Cheapest one-time, 12 accounts',     con:'5 payout cap, 3.5% withdrawal fee' },
+      { firm:'Funded Futures Family',cost:'$79/mo',      sortCost:79,   model:'Monthly',   split:'90%',      speed:'Weekly',        maxAccts:5,  target:'$3,000', drawdown:'EOD $2,000',           dll:'Varies', rating:4.7, pro:'First $10K at 100%, overnight holding',  con:'60% withdrawal cap for first 4 cycles' },
+      { firm:'Alpha Futures',     cost:'$79/mo+$149',    sortCost:228,  model:'Monthly+Act',split:'70→90%',  speed:'~5 biz days',   maxAccts:5,  target:'$3,000', drawdown:'EOD $2,000',           dll:'$1,000', rating:4.3, pro:'Zero plan has no consistency rule',    con:'Starts at 70% split, $149 activation' },
+      { firm:'TradeDay',          cost:'~$88-105/mo',    sortCost:88,   model:'Monthly',   split:'80→95%',   speed:'Next biz day',  maxAccts:3,  target:'$3,000', drawdown:'Choice of 3 types',    dll:'None',   rating:4.5, pro:'3 drawdown choices, no DLL, fast payouts', con:'30% consistency rule, 3 funded max' },
+      { firm:'BluSky Trading',    cost:'~$49-112',       sortCost:49,   model:'Varies',    split:'90%',      speed:'~4 days',       maxAccts:5,  target:'$3,000', drawdown:'EOD $2,000',           dll:'$1,000', rating:4.6, pro:'Launch plan $49, path to live brokerage', con:'Multi-stage funding path' },
+      { firm:'Phidias',           cost:'$116 once',      sortCost:116,  model:'One-time',  split:'80→90%',   speed:'1-4 hours',     maxAccts:15, target:'$4,000', drawdown:'EOD $2,500, locks',    dll:'Varies', rating:4.7, pro:'Same-day payouts, up to 15 accounts',  con:'$4K target, 10 qualifying days' },
+      { firm:'TickTick Trader',   cost:'$145 once',      sortCost:145,  model:'One-time',  split:'100→90%',  speed:'~2 hours',      maxAccts:5,  target:'$3,000', drawdown:'EOD trailing',         dll:'Soft',   rating:4.4, pro:'100% profit first 3 months, 2-hr payouts', con:'No scalping under 5 seconds' },
+      { firm:'Bulenox',           cost:'$175/mo+$148',   sortCost:323,  model:'Monthly+Act',split:'90%',     speed:'~5 biz days',   maxAccts:5,  target:'$3,000', drawdown:'EOD trailing, locks',  dll:'$1,100 soft', rating:4.4, pro:'First $10K at 100%, soft DLL', con:'High total cost ~$323' },
+      { firm:'Apex Trader Funding',cost:'~$20-41/mo+act',sortCost:120,  model:'Monthly+Act',split:'100→90%', speed:'~5 biz days',   maxAccts:20, target:'$3,000', drawdown:'EOD $2,000-2,500',     dll:'$1,000', rating:4.6, pro:'20 accounts, 100% first $25K, cheap on sale', con:'6-payout cap per account (~$13.5K max)' },
+      { firm:'Elite Trader Funding',cost:'$197/mo',      sortCost:197,  model:'Monthly',   split:'100→90%',  speed:'~5 biz days',   maxAccts:5,  target:'$3,000+',drawdown:'EOD trailing',         dll:'Varies', rating:3.8, pro:'100% on first $12.5K',                con:'Expensive, complex ATD rules' },
+      { firm:'TopOne Futures',    cost:'~$407 once',     sortCost:407,  model:'One-time',  split:'90%',      speed:'Same day',      maxAccts:3,  target:'$3,000', drawdown:'EOD $2,000, locks',    dll:'N/A',    rating:4.8, pro:'Instant funding (no eval), same-day payouts', con:'$407 cost, only 3 accounts' },
+    ];
+
+    let recSortCol = 1; // default sort by cost
+    let recSortAsc = true;
+
+    function renderRecTable() {
+      const body = document.getElementById('rec-table-body');
+      if (!body) return;
+
+      const sorted = [...REC_DATA].sort((a, b) => {
+        let va, vb;
+        switch(recSortCol) {
+          case 0: va = a.firm; vb = b.firm; return recSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+          case 1: va = a.sortCost; vb = b.sortCost; break;
+          case 3: va = parseInt(a.split); vb = parseInt(b.split); break;
+          case 5: va = a.maxAccts; vb = b.maxAccts; break;
+          case 8: va = a.rating; vb = b.rating; break;
+          default: va = 0; vb = 0;
+        }
+        return recSortAsc ? va - vb : vb - va;
+      });
+
+      body.innerHTML = sorted.map(r => {
+        const ratingColor = r.rating >= 4.6 ? '#5CB85C' : r.rating >= 4.3 ? '#E8923A' : '#E05C5C';
+        return `<tr>
+          <td style="font-weight:600;color:#fff;white-space:nowrap;">${r.firm}</td>
+          <td style="white-space:nowrap;">${r.cost}</td>
+          <td>${r.model}</td>
+          <td>${r.split}</td>
+          <td style="white-space:nowrap;">${r.speed}</td>
+          <td style="text-align:center;">${r.maxAccts}</td>
+          <td>${r.target}</td>
+          <td style="font-size:12px;">${r.drawdown}</td>
+          <td>${r.dll}</td>
+          <td style="color:${ratingColor};font-weight:600;">${r.rating}</td>
+          <td style="font-size:12px;color:#5CB85C;">${r.pro}</td>
+          <td style="font-size:12px;color:#E05C5C;">${r.con}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function sortRecTable(col) {
+      if (recSortCol === col) recSortAsc = !recSortAsc;
+      else { recSortCol = col; recSortAsc = true; }
+      renderRecTable();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // LIVE DATA — talks to local Node server
+    // ═══════════════════════════════════════════════════════════════════════
+
+    const API = 'http://127.0.0.1:3847/api';
+    let serverOnline = false;
+    let journalTrades = [];
+    let currentCSVConnectionId = null;
+
+    // ─── Global stage filter ──────────────────────────────────────────────
+    // Filters all views by the current lifecycle stage of each account.
+    // Data flow: stageIndex maps account_id → stage. Filter is applied by
+    // computing the set of filtered account IDs and passing them to the
+    // server endpoints as &account_ids=id1,id2,…
+    const STAGE_FILTER_KEY = 'funded-roadmap-stage-filter';
+    let globalStageFilter = localStorage.getItem(STAGE_FILTER_KEY) || 'all';
+    let stageIndex = {};    // account_id → stage (e.g. 'eval', 'funded')
+    let stageIdsCache = null; // cached account_ids matching current filter
+
+    function computeStageForAccount(account, cfg, dd) {
+      if (cfg && cfg.manual_status) return cfg.manual_status;
+      if (dd && dd.busted) return 'failed';
+      if (cfg && cfg.profit_target) {
+        const profit = (dd ? dd.current_equity : account.balance || 0) - cfg.starting_balance;
+        if (profit >= cfg.profit_target) return 'eval_passed';
+      }
+      return 'eval';
+    }
+
+    async function rebuildStageIndex() {
+      if (!serverOnline) { stageIndex = {}; stageIdsCache = null; return; }
+      try {
+        const [accountsRes, configsRes] = await Promise.all([
+          api('/accounts'),
+          api('/account-configs'),
+        ]);
+        const accounts = accountsRes.accounts || [];
+        const configsById = Object.fromEntries((configsRes.configs || []).map(c => [c.account_id, c]));
+
+        // Only fetch drawdowns if actually needed (for busted detection)
+        const ddData = await Promise.all(accounts.map(async a => {
+          try { return await api(`/accounts/${encodeURIComponent(a.id)}/drawdown`); }
+          catch { return null; }
+        }));
+
+        const idx = {};
+        accounts.forEach((a, i) => {
+          idx[a.id] = computeStageForAccount(a, configsById[a.id], ddData[i]);
+        });
+        stageIndex = idx;
+        stageIdsCache = null; // invalidate
+      } catch (e) {
+        console.error('rebuildStageIndex failed:', e);
+      }
+    }
+
+    function getFilteredAccountIds() {
+      if (globalStageFilter === 'all') return null; // null = no filter
+      if (stageIdsCache !== null && stageIdsCache._stage === globalStageFilter) return stageIdsCache;
+      const ids = Object.keys(stageIndex).filter(id => stageIndex[id] === globalStageFilter);
+      ids._stage = globalStageFilter;
+      stageIdsCache = ids;
+      return ids;
+    }
+
+    function buildFilterQuery() {
+      // Returns '&account_ids=a,b,c' or '' if no filter
+      const ids = getFilteredAccountIds();
+      if (!ids || ids.length === 0) return '';
+      return '&account_ids=' + encodeURIComponent(ids.join(','));
+    }
+
+    async function setGlobalStageFilter(stage) {
+      globalStageFilter = stage;
+      localStorage.setItem(STAGE_FILTER_KEY, stage);
+      stageIdsCache = null;
+      const sel = document.getElementById('global-stage-filter');
+      if (sel) sel.classList.toggle('filtered', stage !== 'all');
+      // Refresh every data-driven view
+      await refreshLiveFirms();
+      loadCalendar();
+      loadPatterns();
+      if (activeView === 'accounts') loadLiveAccounts();
+      if (activeView === 'journal')  loadJournal();
+      if (activeView === 'equity')   loadEquityTab();
+    }
+
+    async function api(path, options = {}) {
+      try {
+        const res = await fetch(API + path, {
+          headers: { 'Content-Type': 'application/json' },
+          ...options,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        return data;
+      } catch (e) {
+        if (e.message.includes('fetch') || e.message.includes('NetworkError') || e.message.includes('Failed')) {
+          serverOnline = false;
+          updateServerStatus();
+        }
+        throw e;
+      }
+    }
+
+    async function checkServer() {
+      try {
+        await api('/health');
+        serverOnline = true;
+      } catch {
+        serverOnline = false;
+      }
+      updateServerStatus();
+    }
+
+    function updateServerStatus() {
+      const ind = document.getElementById('server-indicator');
+      const txt = document.getElementById('server-status-text');
+      if (serverOnline) {
+        if (ind) {
+          ind.style.background = '#5CB85C';
+          ind.style.boxShadow = '0 0 8px rgba(92,184,92,0.5)';
+          ind.title = 'Server online — localhost:3847';
+        }
+        if (txt) { txt.textContent = 'Server online'; txt.style.color = '#5CB85C'; }
+      } else {
+        if (ind) {
+          ind.style.background = '#E05C5C';
+          ind.style.boxShadow = '0 0 8px rgba(224,92,92,0.5)';
+          ind.title = 'Server offline — start with: cd server && node server.js';
+        }
+        if (txt) { txt.textContent = 'Server offline'; txt.style.color = '#E05C5C'; }
+      }
+    }
+
+    // ─── Top-level view switching ─────────────────────────────────────────
+    // Each nav button maps 1:1 to a view container. Views are fully
+    // independent — no internal sub-tabs.
+
+    let activeView = 'dashboard';
+
+    function switchView(name) {
+      activeView = name;
+      document.querySelectorAll('.primary-nav-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === name);
+      });
+      document.querySelectorAll('.view').forEach(v => {
+        v.classList.toggle('active', v.id === 'view-' + name);
+      });
+
+      // Lazy-load each view's data when entered
+      if (name === 'accounts') { loadLiveAccounts(); loadConnections(); }
+      if (name === 'journal')  { loadJournal(); }
+      if (name === 'equity')   { loadEquityTab(); }
+
+      // Scroll to top for a clean view switch
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ─── Connections ───────────────────────────────────────────────────────
+
+    async function loadConnections() {
+      const list = document.getElementById('connections-list');
+      if (!serverOnline) {
+        list.innerHTML = '<div style="text-align:center;color:#556677;padding:40px;font-size:13px;">Server is offline. Start it first.</div>';
+        return;
+      }
+      try {
+        const { connections } = await api('/connections');
+        if (connections.length === 0) {
+          list.innerHTML = '<div style="text-align:center;color:#556677;padding:40px;font-size:13px;">No connections yet. Click "+ Add Connection" to start.</div>';
+          return;
+        }
+        list.innerHTML = connections.map(c => `
+          <div class="conn-card">
+            <div class="conn-info">
+              <div class="conn-name">${firmLabel(c.firm)} — ${c.label}</div>
+              <div class="conn-meta">
+                CSV Import
+                · Created ${formatDate(c.created_at)}
+                ${c.last_sync_at ? '· Updated ' + formatRelative(c.last_sync_at) : ''}
+                ${c.status_message ? '· ' + escapeHtml(c.status_message) : ''}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="conn-status ${c.status || 'new'}">${(c.status || 'new').toUpperCase()}</span>
+              <button class="btn" style="padding:5px 10px;font-size:11px;background:rgba(88,166,255,0.15);color:#58a6ff;border:1px solid rgba(88,166,255,0.3);" onclick="openCSVUpload('${c.id}')">Upload CSV</button>
+              <button class="btn btn-danger" onclick="deleteConnection('${c.id}')">&times;</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        list.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+      }
+    }
+
+    function firmLabel(firm) {
+      const map = {
+        tpt: 'Take Profit Trader',
+        lucid: 'Lucid Trading',
+        tradeify: 'Tradeify',
+        daytraders: 'Day Traders',
+        alpha: 'Alpha Futures',
+        topstepx: 'TopstepX',
+        mffu: 'My Funded Futures',
+        apex: 'Apex Trader Funding',
+      };
+      if (map[firm]) return map[firm];
+      // Prettify unknown slugs: "bulenox" → "Bulenox", "day-traders" → "Day Traders"
+      if (!firm) return '';
+      return String(firm)
+        .split(/[-_\s]+/)
+        .map(w => w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w)
+        .join(' ');
+    }
+
+    // Convert a user-typed firm name into a URL-safe slug used as the firm code
+    function firmNameToSlug(name) {
+      return String(name || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    function toggleBulkCustomFirm() {
+      const sel = document.getElementById('bulk-firm');
+      const input = document.getElementById('bulk-firm-custom');
+      if (sel.value === '__custom__') {
+        input.style.display = 'block';
+        input.focus();
+      } else {
+        input.style.display = 'none';
+      }
+    }
+
+    function toggleNewConnCustomFirm() {
+      const sel = document.getElementById('new-conn-firm');
+      const input = document.getElementById('new-conn-firm-custom');
+      if (sel.value === '__custom__') {
+        input.style.display = 'block';
+        input.focus();
+      } else {
+        input.style.display = 'none';
+      }
+    }
+    function ownerLabel(owner) {
+      return owner.charAt(0).toUpperCase() + owner.slice(1);
+    }
+    function formatDate(ms) {
+      if (!ms) return '';
+      return new Date(ms).toLocaleDateString();
+    }
+    function formatRelative(ms) {
+      const diff = Date.now() - ms;
+      if (diff < 60_000) return 'just now';
+      if (diff < 3_600_000) return Math.floor(diff / 60_000) + 'm ago';
+      if (diff < 86_400_000) return Math.floor(diff / 3_600_000) + 'h ago';
+      return Math.floor(diff / 86_400_000) + 'd ago';
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    // Manual refresh — re-reads everything from the DB and re-renders.
+    // (No live data sync anymore; all data comes from manual CSV uploads.)
+    async function refreshAllData() {
+      if (!serverOnline) { alert('Server is offline'); return; }
+      loadConnections();
+      await refreshLiveFirms();
+      loadCalendar();
+      loadPatterns();
+      if (activeView === 'accounts') loadLiveAccounts();
+      if (activeView === 'journal')  loadJournal();
+      if (activeView === 'equity')   loadEquityTab();
+    }
+
+    // ─── Auto-derive firms from live connections ──────────────────────────
+
+    async function buildFirmsFromLiveData() {
+      if (!serverOnline) return null;
+      try {
+        const [accountsRes, configsRes] = await Promise.all([
+          api('/accounts'),
+          api('/account-configs'),
+        ]);
+        const accounts = accountsRes.accounts || [];
+        if (accounts.length === 0) return null;
+
+        const configs = Object.fromEntries((configsRes.configs || []).map(c => [c.account_id, c]));
+
+        // Fetch drawdowns in parallel for status detection
+        const ddData = await Promise.all(accounts.map(async a => {
+          try { return await api(`/accounts/${encodeURIComponent(a.id)}/drawdown`); }
+          catch { return null; }
+        }));
+
+        // Group accounts by firm + owner, applying the global stage filter
+        const groups = {};
+        accounts.forEach((a, i) => {
+          const cfg = configs[a.id];
+          const dd = ddData[i];
+          const status = computeStageForAccount(a, cfg, dd);
+
+          // Update the stage index so other views can use it too
+          stageIndex[a.id] = status;
+
+          // Apply global stage filter
+          if (globalStageFilter !== 'all' && status !== globalStageFilter) return;
+
+          const key = `${a.firm}-${a.owner}`;
+          if (!groups[key]) groups[key] = { firm: a.firm, owner: a.owner, accounts: [] };
+          groups[key].accounts.push({
+            ...a,
+            status,
+            current_equity: dd ? dd.current_equity : a.balance,
+          });
+        });
+        stageIdsCache = null; // invalidate cache after rebuild
+
+        // Build firms array
+        return Object.values(groups).map(g => ({
+          id: `live-${g.firm}-${g.owner}`,
+          name: firmLabel(g.firm),
+          owner: ownerLabel(g.owner),
+          max: g.accounts.length,
+          costPerAcct: 150,
+          slots: g.accounts.map(a => a.status),
+          live: true,
+          accounts: g.accounts,
+        }));
+      } catch (e) {
+        console.error('buildFirmsFromLiveData failed:', e);
+        return null;
+      }
+    }
+
+    async function refreshLiveFirms() {
+      const live = await buildFirmsFromLiveData();
+      if (live && live.length > 0) {
+        // Replace any existing live entries and merge with manual ones
+        const manual = firms.filter(f => !f.live);
+        firms = [...live, ...manual];
+        render();
+      }
+    }
+
+    async function deleteConnection(id) {
+      if (!confirm('Delete this connection and all its trade history?')) return;
+      await api(`/connections/${id}`, { method: 'DELETE' });
+      loadConnections();
+      // Remove live entries for this connection's accounts and re-derive
+      firms = firms.filter(f => !f.live);
+      await refreshLiveFirms();
+      render();
+    }
+
+    // ─── Modals ────────────────────────────────────────────────────────────
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function openAddConnectionModal() {
+      if (!serverOnline) { alert('Server is offline. Start it first.'); return; }
+      document.getElementById('new-conn-label').value = '';
+      const customInput = document.getElementById('new-conn-firm-custom');
+      if (customInput) { customInput.value = ''; customInput.style.display = 'none'; }
+      const firmSel = document.getElementById('new-conn-firm');
+      if (firmSel && firmSel.value === '__custom__') firmSel.value = 'tpt';
+      openModal('modal-add-connection');
+    }
+
+    async function submitAddConnection() {
+      let firm = document.getElementById('new-conn-firm').value;
+      if (firm === '__custom__') {
+        const custom = document.getElementById('new-conn-firm-custom').value.trim();
+        if (!custom) { alert('Enter a custom firm name'); return; }
+        firm = firmNameToSlug(custom);
+        if (!firm) { alert('Custom firm name is invalid'); return; }
+      }
+      const owner = 'me'; // single-owner mode
+      const label = document.getElementById('new-conn-label').value.trim();
+
+      if (!label) { alert('Label required'); return; }
+
+      try {
+        await api('/connections', {
+          method: 'POST',
+          body: JSON.stringify({ firm, owner, label, platform: 'csv' }),
+        });
+        closeModal('modal-add-connection');
+        loadConnections();
+        await refreshLiveFirms();
+        loadCalendar();
+        loadPatterns();
+      } catch (e) {
+        alert('Failed to add connection: ' + e.message);
+      }
+    }
+
+    // ─── Bulk Import (screenshot + CSV or share URL) ──────────────────────
+
+    let bulkParsedRows = null;
+    let bulkSourceMode = 'csv'; // 'csv' or 'url'
+
+    async function openBulkImportModal() {
+      if (!serverOnline) { alert('Server is offline. Start it first.'); return; }
+      bulkParsedRows = null;
+      document.getElementById('bulk-image').value = '';
+      document.getElementById('bulk-csv').value = '';
+      const shareInput = document.getElementById('bulk-share-url');
+      if (shareInput) shareInput.value = '';
+      document.getElementById('bulk-label').value = '';
+      document.getElementById('bulk-firm-custom').value = '';
+      document.getElementById('bulk-firm-custom').style.display = 'none';
+      document.getElementById('bulk-step-1').style.display = 'block';
+      document.getElementById('bulk-step-2').style.display = 'none';
+      bulkSetSource('csv');
+
+      // Populate target connection dropdown
+      try {
+        const { connections } = await api('/connections');
+        const sel = document.getElementById('bulk-target');
+        sel.innerHTML = '<option value="">Create new connection</option>' +
+          connections.map(c =>
+            `<option value="${c.id}">${escapeHtml(firmLabel(c.firm))} · ${escapeHtml(ownerLabel(c.owner))} · ${escapeHtml(c.label)}</option>`
+          ).join('');
+        sel.onchange = updateBulkTargetUI;
+        updateBulkTargetUI();
+      } catch {}
+
+      openModal('modal-bulk-import');
+    }
+
+    function updateBulkTargetUI() {
+      const targetId = document.getElementById('bulk-target').value;
+      const isExisting = !!targetId;
+      document.getElementById('bulk-image-optional-hint').textContent =
+        isExisting ? '(optional — upload to refresh balances / add new accounts)' : '(required — detects account list)';
+      document.getElementById('bulk-target-help').textContent =
+        isExisting
+          ? 'Re-using this connection. Firm / owner / label stay the same. Skip the screenshot to just refresh trades.'
+          : 'Select an existing connection to update its accounts & trades, or create a new one.';
+    }
+
+    function bulkSetSource(mode) {
+      bulkSourceMode = mode;
+      const csvBtn = document.getElementById('src-csv-btn');
+      const urlBtn = document.getElementById('src-url-btn');
+      const csvInput = document.getElementById('bulk-csv');
+      const urlInput = document.getElementById('bulk-share-url');
+      const help = document.getElementById('bulk-source-help');
+      if (mode === 'csv') {
+        csvBtn.style.background = 'rgba(92,184,92,0.15)';
+        csvBtn.style.color = '#5CB85C';
+        csvBtn.style.borderColor = 'rgba(92,184,92,0.3)';
+        urlBtn.style.background = '#21262d';
+        urlBtn.style.color = '#8899aa';
+        urlBtn.style.borderColor = '#30363d';
+        csvInput.style.display = 'block';
+        urlInput.style.display = 'none';
+        help.textContent = 'Upload the trade history CSV from one account. Supports Tradovate Orders export format.';
+      } else {
+        urlBtn.style.background = 'rgba(92,184,92,0.15)';
+        urlBtn.style.color = '#5CB85C';
+        urlBtn.style.borderColor = 'rgba(92,184,92,0.3)';
+        csvBtn.style.background = '#21262d';
+        csvBtn.style.color = '#8899aa';
+        csvBtn.style.borderColor = '#30363d';
+        csvInput.style.display = 'none';
+        urlInput.style.display = 'block';
+        help.textContent = 'Paste a public TopstepX share URL. The system will pull trades via the TopstepX API.';
+      }
+    }
+
+    function bulkBackToStep1() {
+      document.getElementById('bulk-step-1').style.display = 'block';
+      document.getElementById('bulk-step-2').style.display = 'none';
+    }
+
+    async function parseBulkScreenshot() {
+      const file = document.getElementById('bulk-image').files[0];
+      const targetId = document.getElementById('bulk-target').value;
+      const isExisting = !!targetId;
+
+      // ─── Skip-screenshot path: updating existing connection, no image ──
+      if (isExisting && !file) {
+        bulkParsedRows = [];
+        document.getElementById('bulk-detected-accounts').innerHTML =
+          '<div style="color:#8899aa;">Skipping screenshot. Trades will be added to the existing accounts under this connection.</div>';
+        document.getElementById('bulk-firm').disabled = true;
+        document.getElementById('bulk-label').disabled = true;
+        document.getElementById('bulk-firm-detected').textContent = '· locked to connection';
+        document.getElementById('bulk-step-1').style.display = 'none';
+        document.getElementById('bulk-step-2').style.display = 'block';
+        return;
+      }
+
+      if (!file) { alert('Choose a screenshot first'); return; }
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const res = await fetch(`${API}/parse-screenshot`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Parse failed');
+        if (!data.rows || data.rows.length === 0) {
+          alert('No accounts detected in screenshot. Try a clearer image with the account list visible.');
+          return;
+        }
+        bulkParsedRows = data.rows;
+
+        // Show detected accounts
+        document.getElementById('bulk-detected-accounts').innerHTML = data.rows.map(r => {
+          const parts = [`<strong style="color:#5CB85C;">${escapeHtml(r.account)}</strong>`];
+          if (r.net_liq != null) parts.push(`Net: $${r.net_liq.toLocaleString()}`);
+          if (r.pnl != null) parts.push(`P&L: ${r.pnl >= 0 ? '+' : ''}$${r.pnl.toLocaleString()}`);
+          if (r.drawdown != null) parts.push(`DD Dist: $${r.drawdown.toLocaleString()}`);
+          if (r.trailing != null) parts.push(`Trailing: $${r.trailing.toLocaleString()}`);
+          return `<div style="margin-bottom:6px;">${parts.join(' &nbsp;·&nbsp; ')}</div>`;
+        }).join('');
+
+        // If updating existing, lock and reflect the existing firm/label
+        if (isExisting) {
+          try {
+            const { connections } = await api('/connections');
+            const conn = connections.find(c => c.id === targetId);
+            if (conn) {
+              document.getElementById('bulk-firm').value = conn.firm;
+              document.getElementById('bulk-label').value = conn.label;
+            }
+          } catch {}
+          document.getElementById('bulk-firm').disabled = true;
+          document.getElementById('bulk-label').disabled = true;
+          document.getElementById('bulk-firm-detected').textContent = '· locked to connection';
+        } else {
+          document.getElementById('bulk-firm').disabled = false;
+          document.getElementById('bulk-label').disabled = false;
+
+          // Pre-fill firm if detected
+          const detectedFirm = data.firm;
+          const firmMap = { mffu: 'mffu', tpt: 'tpt', apex: 'apex', topstepx: 'topstepx', tradovate: 'tpt' };
+          if (detectedFirm && firmMap[detectedFirm]) {
+            document.getElementById('bulk-firm').value = firmMap[detectedFirm];
+            document.getElementById('bulk-firm-detected').textContent = '· auto-detected';
+          } else {
+            document.getElementById('bulk-firm-detected').textContent = '';
+          }
+
+          // Default label
+          if (!document.getElementById('bulk-label').value) {
+            const cnt = data.rows.length;
+            document.getElementById('bulk-label').value = `${(detectedFirm || '').toUpperCase()} ${cnt}-Account Group`.trim();
+          }
+        }
+
+        document.getElementById('bulk-step-1').style.display = 'none';
+        document.getElementById('bulk-step-2').style.display = 'block';
+      } catch (e) {
+        alert('Parse failed: ' + e.message);
+      }
+    }
+
+    async function submitBulkImport() {
+      const csvFile = document.getElementById('bulk-csv').files[0];
+      const imageFile = document.getElementById('bulk-image').files[0];
+      const shareUrl = document.getElementById('bulk-share-url').value.trim();
+      let firm = document.getElementById('bulk-firm').value;
+      if (firm === '__custom__') {
+        const custom = document.getElementById('bulk-firm-custom').value.trim();
+        if (!custom) { alert('Enter a custom firm name'); return; }
+        firm = firmNameToSlug(custom);
+        if (!firm) { alert('Custom firm name is invalid'); return; }
+      }
+      const owner = 'me'; // single-owner mode
+      const label = document.getElementById('bulk-label').value.trim();
+      const targetId = document.getElementById('bulk-target').value;
+      const isExisting = !!targetId;
+
+      // When creating new connection, screenshot and label are required.
+      // When updating existing, both are optional (only trade source is required).
+      if (!isExisting && !imageFile) { alert('Screenshot required to create a new connection'); return; }
+      if (!isExisting && !label)     { alert('Label required');     return; }
+      if (bulkSourceMode === 'csv' && !csvFile)  { alert('CSV missing');       return; }
+      if (bulkSourceMode === 'url' && !shareUrl) { alert('Share URL missing'); return; }
+
+      const formData = new FormData();
+      if (imageFile) formData.append('image', imageFile);
+      if (bulkSourceMode === 'csv') formData.append('csv', csvFile);
+      if (bulkSourceMode === 'url') formData.append('shareUrl', shareUrl);
+      if (isExisting) {
+        formData.append('connection_id', targetId);
+      } else {
+        formData.append('firm', firm);
+        formData.append('owner', owner);
+        formData.append('label', label);
+      }
+
+      try {
+        const res = await fetch(`${API}/bulk-import`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Import failed');
+        closeModal('modal-bulk-import');
+        alert(`Imported ${data.accounts} accounts with ${data.trades} cloned trades.`);
+        loadConnections();
+        await refreshLiveFirms();
+        loadCalendar();
+        loadPatterns();
+      } catch (e) {
+        alert('Bulk import failed: ' + e.message);
+      }
+    }
+
+    function openCSVUpload(id) {
+      currentCSVConnectionId = id;
+      document.getElementById('csv-file').value = '';
+      openModal('modal-csv-upload');
+    }
+
+    async function submitCSVUpload() {
+      const file = document.getElementById('csv-file').files[0];
+      if (!file) { alert('Choose a CSV file'); return; }
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch(`${API}/connections/${currentCSVConnectionId}/import-csv`, {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        closeModal('modal-csv-upload');
+        alert(`Imported ${data.trades} trades from ${data.accounts} account(s).`);
+        loadConnections();
+        await refreshLiveFirms();
+        loadCalendar();
+        loadPatterns();
+      } catch (e) {
+        alert('Upload failed: ' + e.message);
+      }
+    }
+
+    // ─── Live Accounts ─────────────────────────────────────────────────────
+
+    async function loadLiveAccounts() {
+      const grid = document.getElementById('live-accounts-grid');
+      if (!serverOnline) { grid.innerHTML = '<div style="color:#556677;padding:20px;">Server offline</div>'; return; }
+      try {
+        let { accounts } = await api('/accounts');
+        // Apply global stage filter
+        if (globalStageFilter !== 'all') {
+          accounts = accounts.filter(a => stageIndex[a.id] === globalStageFilter);
+        }
+        if (accounts.length === 0) {
+          const msg = globalStageFilter === 'all'
+            ? 'No accounts yet. Add a connection first.'
+            : `No accounts match the "${globalStageFilter.replace('_', ' ')}" filter.`;
+          grid.innerHTML = `<div style="text-align:center;color:#556677;padding:40px;grid-column:1/-1;">${msg}</div>`;
+          return;
+        }
+        // Fetch drawdown and configs for each account in parallel
+        const [ddData, configsRes] = await Promise.all([
+          Promise.all(accounts.map(async a => {
+            try { return await api(`/accounts/${encodeURIComponent(a.id)}/drawdown`); }
+            catch { return null; }
+          })),
+          api('/account-configs').catch(() => ({ configs: [] })),
+        ]);
+        const configById = Object.fromEntries((configsRes.configs || []).map(c => [c.account_id, c]));
+
+        grid.innerHTML = accounts.map((a, i) => {
+          const dd = ddData[i];
+          const cfg = configById[a.id];
+          const pnl = a.realized_pnl || 0;
+          // Prefer equity from drawdown calc if available (computed from trades)
+          const balance = (dd && dd.current_equity != null) ? dd.current_equity : (a.balance ?? 0);
+          const realizedPnl = pnl;
+          let danger = false, cls = '';
+          if (dd) {
+            const ratio = dd.distance_to_dd / dd.drawdown_amount;
+            if (ratio < 0.25) { cls = 'danger'; danger = true; }
+            else if (dd.current_equity > dd.starting_balance) cls = 'profit';
+            else if (dd.current_equity < dd.starting_balance) cls = 'loss';
+          } else {
+            cls = pnl > 0 ? 'profit' : pnl < 0 ? 'loss' : '';
+          }
+          const pnlCls = realizedPnl > 0 ? 'positive' : realizedPnl < 0 ? 'negative' : '';
+          const currentStage = cfg?.manual_status || 'auto';
+          const stageLabels = { auto: 'Auto', eval: 'In Evaluation', eval_passed: 'Eval Passed', funded: 'Funded', payout: 'Payout Ready', failed: 'Busted' };
+          const stageColors = { auto: '#8899aa', eval: '#E8923A', eval_passed: '#40CEC9', funded: '#5CB85C', payout: '#58a6ff', failed: '#E05C5C' };
+
+          // Build drawdown gauge if config exists
+          let gauge = '';
+          if (dd) {
+            const distancePct = Math.max(0, Math.min(100, (dd.distance_to_dd / dd.drawdown_amount) * 100));
+            const gaugeColor = distancePct < 25 ? '#E05C5C' : distancePct < 50 ? '#E8923A' : '#5CB85C';
+            gauge = `
+              <div style="margin-top:12px;padding-top:10px;border-top:1px solid #21262d;">
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:#556677;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+                  <span>DD Cushion</span>
+                  <span style="color:${gaugeColor};font-weight:600;">$${dd.distance_to_dd.toFixed(0)}</span>
+                </div>
+                <div style="height:6px;background:#21262d;border-radius:3px;overflow:hidden;">
+                  <div style="height:100%;width:${distancePct}%;background:${gaugeColor};transition:width 0.3s;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:#556677;margin-top:4px;">
+                  <span>Threshold $${dd.dd_threshold.toFixed(0)}</span>
+                  <span>Peak $${dd.peak_balance.toFixed(0)}${dd.locked ? ' 🔒' : ''}</span>
+                </div>
+              </div>
+            `;
+          } else {
+            gauge = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #21262d;font-size:11px;color:#556677;">No drawdown config — click Configure</div>`;
+          }
+
+          return `
+            <div class="live-acct-card ${cls}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div>
+                  <div class="live-acct-name">${escapeHtml(a.name || a.external_id)}</div>
+                  <div class="live-acct-firm">${firmLabel(a.firm)}</div>
+                </div>
+                <button class="btn" style="padding:4px 8px;font-size:10px;background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="openAccountConfig('${a.id}', '${escapeHtml(a.name || a.external_id)}')">⚙</button>
+              </div>
+              <div class="live-acct-balance">$${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div class="live-acct-pnl ${pnlCls}">${realizedPnl >= 0 ? '+' : ''}$${realizedPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} realized</div>
+              <div style="margin-top:10px;padding-top:10px;border-top:1px solid #21262d;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:10px;color:#556677;text-transform:uppercase;letter-spacing:1px;">Stage</span>
+                  <select onchange="setAccountStage('${a.id}', this.value)" style="background:#0d1117;border:1px solid #21262d;border-radius:4px;padding:3px 6px;color:${stageColors[currentStage]};font-size:11px;font-weight:600;outline:none;cursor:pointer;">
+                    <option value="auto" ${currentStage==='auto'?'selected':''} style="color:#8899aa;">Auto</option>
+                    <option value="eval" ${currentStage==='eval'?'selected':''} style="color:#E8923A;">In Evaluation</option>
+                    <option value="eval_passed" ${currentStage==='eval_passed'?'selected':''} style="color:#40CEC9;">Eval Passed</option>
+                    <option value="funded" ${currentStage==='funded'?'selected':''} style="color:#5CB85C;">Funded</option>
+                    <option value="payout" ${currentStage==='payout'?'selected':''} style="color:#58a6ff;">Payout Ready</option>
+                    <option value="failed" ${currentStage==='failed'?'selected':''} style="color:#E05C5C;">Busted</option>
+                  </select>
+                </div>
+              </div>
+              ${gauge}
+              ${danger ? '<div style="margin-top:8px;font-size:11px;color:#E05C5C;font-weight:600;">⚠ Approaching drawdown limit</div>' : ''}
+              ${dd && dd.busted ? '<div style="margin-top:8px;font-size:11px;color:#E05C5C;font-weight:700;">⚠ DRAWDOWN BREACHED</div>' : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+      }
+    }
+
+    // ─── Account Config ────────────────────────────────────────────────────
+
+    let currentConfigAccountId = null;
+
+    // ─── Combined firm edit (rename + set stage for whole group) ──────────
+
+    function openFirmEdit(firmId) {
+      const firm = firms.find(f => f.id === firmId);
+      if (!firm || !firm.live || !firm.accounts || !firm.accounts[0]) return;
+      const area = document.getElementById('firm-edit-' + firmId);
+      if (!area) return;
+      const firmCode = firm.accounts[0].firm;
+      const ownerCode = firm.accounts[0].owner;
+      const currentName = firmLabel(firmCode);
+      area.innerHTML = `
+        <div style="background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:12px;margin-bottom:12px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#556677;font-weight:600;margin-bottom:8px;">Edit Firm</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div>
+              <label style="font-size:10px;color:#556677;display:block;margin-bottom:2px;">Firm Name</label>
+              <input type="text" id="firm-edit-name-${firmId}" value="${escapeHtml(currentName)}" style="width:100%;background:#161b22;border:1px solid #21262d;border-radius:6px;padding:6px 10px;color:#e0e0e0;font-size:12px;outline:none;">
+            </div>
+            <div>
+              <label style="font-size:10px;color:#556677;display:block;margin-bottom:2px;">Set All Accounts to Stage</label>
+              <select id="firm-edit-stage-${firmId}" style="width:100%;background:#161b22;border:1px solid #21262d;border-radius:6px;padding:6px 10px;color:#e0e0e0;font-size:12px;outline:none;cursor:pointer;">
+                <option value="">— no change —</option>
+                <option value="auto">Auto (let system decide)</option>
+                <option value="eval">In Evaluation</option>
+                <option value="eval_passed">Eval Passed</option>
+                <option value="funded">Funded</option>
+                <option value="payout">Payout Ready</option>
+                <option value="failed">Busted</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px;">
+              <button class="btn" style="padding:5px 12px;font-size:11px;background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="cancelFirmEdit('${firmId}')">Cancel</button>
+              <button class="btn btn-primary" style="padding:5px 12px;font-size:11px;" onclick="saveFirmEdit('${firmId}','${firmCode}','${ownerCode}')">Save</button>
+            </div>
+          </div>
+        </div>
+      `;
+      area.style.display = 'block';
+      const nameInput = document.getElementById('firm-edit-name-' + firmId);
+      if (nameInput) { nameInput.focus(); nameInput.select(); }
+    }
+
+    function cancelFirmEdit(firmId) {
+      const area = document.getElementById('firm-edit-' + firmId);
+      if (area) { area.style.display = 'none'; area.innerHTML = ''; }
+    }
+
+    async function saveFirmEdit(firmId, firmCode, ownerCode) {
+      const newName = (document.getElementById('firm-edit-name-' + firmId).value || '').trim();
+      const stage = document.getElementById('firm-edit-stage-' + firmId).value;
+      const currentName = firmLabel(firmCode);
+
+      const ops = [];
+      if (newName && newName !== currentName) {
+        ops.push(
+          api('/rename-firm', {
+            method: 'POST',
+            body: JSON.stringify({ from: firmCode, to: newName, owner: ownerCode }),
+          })
+        );
+      }
+      if (stage) {
+        // After rename, firmCode may change; bulk-stage is matched by new slug if applicable.
+        // We use the old code here because rename-firm returns the new slug, but in the
+        // common case you either rename OR set stage, not both. For safety, fire bulk-stage
+        // after rename completes so it matches the new slug if renamed.
+      }
+
+      try {
+        // First run rename so its slug is applied
+        if (ops.length) await Promise.all(ops);
+
+        if (stage) {
+          const newSlug = newName && newName !== currentName
+            ? newName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+            : firmCode;
+          await api('/bulk-stage', {
+            method: 'POST',
+            body: JSON.stringify({ stage, firm: newSlug, owner: ownerCode }),
+          });
+        }
+
+        cancelFirmEdit(firmId);
+        await refreshLiveFirms();
+        if (activeView === 'accounts') loadLiveAccounts();
+      } catch (e) {
+        alert('Save failed: ' + e.message);
+      }
+    }
+
+    async function setAccountStage(accountId, stage) {
+      // Inline stage change from the Live Accounts card. We merge with the
+      // existing config so we don't lose starting balance / drawdown rules.
+      try {
+        const { config } = await api(`/accounts/${encodeURIComponent(accountId)}/config`);
+        const body = {
+          starting_balance: config?.starting_balance ?? 50000,
+          drawdown_type: config?.drawdown_type ?? 'eod_trailing',
+          drawdown_amount: config?.drawdown_amount ?? 2000,
+          manual_status: stage === 'auto' ? null : stage,
+        };
+        if (config?.drawdown_locks_at != null) body.drawdown_locks_at = config.drawdown_locks_at;
+        if (config?.profit_target != null)     body.profit_target = config.profit_target;
+        if (config?.daily_loss_limit != null)  body.daily_loss_limit = config.daily_loss_limit;
+        await api(`/accounts/${encodeURIComponent(accountId)}/config`, {
+          method: 'POST', body: JSON.stringify(body),
+        });
+        loadLiveAccounts();
+        await refreshLiveFirms();
+      } catch (e) {
+        alert('Failed to update stage: ' + e.message);
+      }
+    }
+
+    async function openAccountConfig(accountId, accountName) {
+      currentConfigAccountId = accountId;
+      document.getElementById('account-config-account-name').textContent = accountName;
+      try {
+        const { config } = await api(`/accounts/${encodeURIComponent(accountId)}/config`);
+        if (config) {
+          document.getElementById('cfg-manual-status').value = config.manual_status || '';
+          document.getElementById('cfg-starting').value = config.starting_balance ?? 50000;
+          document.getElementById('cfg-dd-type').value = config.drawdown_type ?? 'eod_trailing';
+          document.getElementById('cfg-dd-amount').value = config.drawdown_amount ?? 2000;
+          document.getElementById('cfg-dd-lock').value = config.drawdown_locks_at ?? '';
+          document.getElementById('cfg-profit-target').value = config.profit_target ?? '';
+          document.getElementById('cfg-dll').value = config.daily_loss_limit ?? '';
+        } else {
+          document.getElementById('cfg-manual-status').value = '';
+          document.getElementById('cfg-starting').value = 50000;
+          document.getElementById('cfg-dd-type').value = 'eod_trailing';
+          document.getElementById('cfg-dd-amount').value = 2000;
+          document.getElementById('cfg-dd-lock').value = '';
+          document.getElementById('cfg-profit-target').value = '';
+          document.getElementById('cfg-dll').value = '';
+        }
+      } catch (e) {}
+      openModal('modal-account-config');
+    }
+
+    async function submitAccountConfig() {
+      const body = {
+        starting_balance: parseFloat(document.getElementById('cfg-starting').value) || 50000,
+        drawdown_type: document.getElementById('cfg-dd-type').value,
+        drawdown_amount: parseFloat(document.getElementById('cfg-dd-amount').value) || 2000,
+      };
+      const manualStatus = document.getElementById('cfg-manual-status').value;
+      const lock = document.getElementById('cfg-dd-lock').value;
+      const target = document.getElementById('cfg-profit-target').value;
+      const dll = document.getElementById('cfg-dll').value;
+      if (manualStatus) body.manual_status = manualStatus;
+      if (lock) body.drawdown_locks_at = parseFloat(lock);
+      if (target) body.profit_target = parseFloat(target);
+      if (dll) body.daily_loss_limit = parseFloat(dll);
+
+      try {
+        await api(`/accounts/${encodeURIComponent(currentConfigAccountId)}/config`, {
+          method: 'POST', body: JSON.stringify(body),
+        });
+        closeModal('modal-account-config');
+        loadLiveAccounts();
+        await refreshLiveFirms();
+      } catch (e) {
+        alert('Failed: ' + e.message);
+      }
+    }
+
+    // ─── Journal ───────────────────────────────────────────────────────────
+
+    async function loadJournal() {
+      if (!serverOnline) return;
+      const firm   = document.getElementById('journal-filter-firm').value;
+      const owner  = document.getElementById('journal-filter-owner').value;
+      const symbol = document.getElementById('journal-filter-symbol').value;
+      const fromD  = document.getElementById('journal-filter-from').value;
+      const toD    = document.getElementById('journal-filter-to').value;
+
+      const params = new URLSearchParams();
+      if (firm)   params.set('firm', firm);
+      if (owner)  params.set('owner', owner);
+      if (symbol) params.set('symbol', symbol);
+      if (fromD)  params.set('from', new Date(fromD).getTime());
+      if (toD)    params.set('to', new Date(toD).getTime() + 86400000);
+
+      try {
+        const qs = params.toString() + buildFilterQuery();
+        const { trades } = await api('/trades' + (qs ? '?' + qs : ''));
+        journalTrades = trades;
+        renderJournal(trades);
+        populateJournalFilters(trades);
+      } catch (e) {
+        document.getElementById('journal-body').innerHTML = `<tr><td colspan="9" style="color:#E05C5C;padding:20px;">${e.message}</td></tr>`;
+      }
+    }
+
+    async function renderJournal(trades) {
+      const body = document.getElementById('journal-body');
+      if (trades.length === 0) {
+        body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#556677;padding:40px;">No trades found</td></tr>';
+        document.getElementById('journal-stats').innerHTML = '';
+        return;
+      }
+      // Fetch all trade notes once and index by id
+      let notesById = {};
+      try {
+        const { notes } = await api('/trade-notes');
+        notesById = Object.fromEntries(notes.map(n => [n.trade_id, n]));
+      } catch {}
+
+      body.innerHTML = trades.map(t => {
+        const pnl = t.net_pnl ?? t.pnl ?? 0;
+        const cls = pnl > 0 ? 'pnl-pos' : pnl < 0 ? 'pnl-neg' : '';
+        const dur = t.duration_sec < 60 ? t.duration_sec + 's' : Math.floor(t.duration_sec / 60) + 'm';
+        const note = notesById[t.id];
+        const summary = `${t.symbol} ${t.side} ${t.quantity}x  ${t.entry_price.toFixed(2)} → ${t.exit_price.toFixed(2)}  ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`;
+        const noteIcon = note && (note.note || note.setup) ? '📝' : '＋';
+        const noteColor = note && (note.note || note.setup) ? '#5CB85C' : '#556677';
+        return `
+          <tr>
+            <td style="white-space:nowrap;">${new Date(t.entry_time).toLocaleString()}</td>
+            <td>${escapeHtml(t.firm + '-' + t.owner)}</td>
+            <td>${escapeHtml(t.symbol)}</td>
+            <td>${t.side}</td>
+            <td>${t.quantity}</td>
+            <td>${t.entry_price.toFixed(2)}</td>
+            <td>${t.exit_price.toFixed(2)}</td>
+            <td>${dur}</td>
+            <td class="${cls}" style="text-align:right;">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</td>
+            <td style="text-align:center;"><button class="btn" style="background:transparent;border:none;cursor:pointer;color:${noteColor};font-size:14px;padding:0;" onclick="openTradeNote('${t.id}', ${JSON.stringify(summary).replace(/"/g, '&quot;')})">${noteIcon}</button></td>
+          </tr>
+        `;
+      }).join('');
+
+      // Stats
+      const total = trades.reduce((s, t) => s + (t.net_pnl ?? t.pnl ?? 0), 0);
+      const wins = trades.filter(t => (t.net_pnl ?? t.pnl ?? 0) > 0).length;
+      const losses = trades.filter(t => (t.net_pnl ?? t.pnl ?? 0) < 0).length;
+      const wr = trades.length ? ((wins / trades.length) * 100).toFixed(1) : '0';
+      document.getElementById('journal-stats').innerHTML = `
+        <div class="stat-card"><div class="stat-label">Total P&amp;L</div><div class="stat-value ${total >= 0 ? 'green' : 'red'}">${total >= 0 ? '+' : ''}$${total.toFixed(0)}</div></div>
+        <div class="stat-card"><div class="stat-label">Trades</div><div class="stat-value">${trades.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value green">${wins}</div></div>
+        <div class="stat-card"><div class="stat-label">Losses</div><div class="stat-value red">${losses}</div></div>
+        <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value">${wr}%</div></div>
+      `;
+    }
+
+    function populateJournalFilters(trades) {
+      const firms = [...new Set(trades.map(t => t.firm))];
+      const owners = [...new Set(trades.map(t => t.owner))];
+      const symbols = [...new Set(trades.map(t => t.symbol))];
+
+      const setOptions = (id, values, prefix) => {
+        const sel = document.getElementById(id);
+        const current = sel.value;
+        const opts = ['<option value="">' + prefix + '</option>'].concat(values.map(v => `<option value="${v}">${v}</option>`));
+        sel.innerHTML = opts.join('');
+        if (values.includes(current)) sel.value = current;
+      };
+      setOptions('journal-filter-firm', firms, 'All Firms');
+      setOptions('journal-filter-owner', owners, 'All Owners');
+      setOptions('journal-filter-symbol', symbols, 'All Symbols');
+    }
+
+    function exportJournalCSV() {
+      if (journalTrades.length === 0) { alert('No trades to export'); return; }
+      const headers = ['Date', 'Firm', 'Owner', 'Symbol', 'Side', 'Qty', 'Entry', 'Exit', 'Duration(s)', 'PnL'];
+      const rows = journalTrades.map(t => [
+        new Date(t.entry_time).toISOString(),
+        t.firm, t.owner, t.symbol, t.side, t.quantity,
+        t.entry_price, t.exit_price, t.duration_sec,
+        t.net_pnl ?? t.pnl,
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journal-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ─── Calendar Heatmap ─────────────────────────────────────────────────
+
+    async function loadCalendar() {
+      const container = document.getElementById('inline-calendar-container');
+      if (!container) return;
+      if (!serverOnline) { container.innerHTML = '<div style="padding:20px;color:#556677;font-size:13px;">Server offline</div>'; return; }
+      try {
+        const filterQS = buildFilterQuery().replace(/^&/, '?');
+        const { stats } = await api('/daily-stats' + filterQS);
+        renderCalendar(stats, container);
+      } catch (e) {
+        container.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+      }
+    }
+
+    function renderCalendar(stats, container) {
+      if (stats.length === 0) {
+        container.innerHTML = `
+          <div class="cal-wrap" style="padding:40px;text-align:center;">
+            <div style="color:#556677;font-size:13px;">No daily stats yet. Import trades to see the calendar heat map.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const byDate = Object.fromEntries(stats.map(s => [s.date, s]));
+      const dates = stats.map(s => s.date).sort();
+      const first = new Date(dates[0]);
+      const last = new Date(dates[dates.length - 1]);
+      const maxAbs = Math.max(...stats.map(s => Math.abs(s.net_pnl || 0))) || 1;
+
+      // Summary stats
+      const totalPnl = stats.reduce((s, x) => s + (x.net_pnl || 0), 0);
+      const totalTrades = stats.reduce((s, x) => s + (x.trade_count || 0), 0);
+      const totalWins = stats.reduce((s, x) => s + (x.win_count || 0), 0);
+      const winRate = totalTrades > 0 ? (totalWins / totalTrades * 100) : 0;
+      const tradingDays = stats.length;
+      const bestDay = stats.reduce((b, x) => (x.net_pnl || 0) > (b?.net_pnl || -Infinity) ? x : b, null);
+      const worstDay = stats.reduce((b, x) => (x.net_pnl || 0) < (b?.net_pnl || Infinity) ? x : b, null);
+      const greenDays = stats.filter(x => (x.net_pnl || 0) > 0).length;
+      const redDays = stats.filter(x => (x.net_pnl || 0) < 0).length;
+
+      // Format helpers
+      const fmtMoney = n => (n >= 0 ? '+' : '') + '$' + Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      const fmtCompact = n => {
+        const abs = Math.abs(n);
+        const sign = n >= 0 ? '+' : '-';
+        if (abs >= 1000) return sign + '$' + (abs / 1000).toFixed(1) + 'k';
+        return sign + '$' + abs.toFixed(0);
+      };
+
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      // Build months array
+      const months = [];
+      let cur = new Date(first.getFullYear(), first.getMonth(), 1);
+      while (cur <= last) {
+        months.push(new Date(cur));
+        cur.setMonth(cur.getMonth() + 1);
+      }
+
+      const dayNames = ['S','M','T','W','T','F','S'];
+
+      const summaryHTML = `
+        <div class="cal-summary">
+          <div class="cal-summary-item">
+            <div class="cal-summary-label">Total P&amp;L</div>
+            <div class="cal-summary-value ${totalPnl >= 0 ? 'pos' : 'neg'}">${fmtMoney(totalPnl)}</div>
+            <div class="cal-summary-sub">${tradingDays} trading days</div>
+          </div>
+          <div class="cal-summary-item">
+            <div class="cal-summary-label">Total Trades</div>
+            <div class="cal-summary-value">${totalTrades.toLocaleString()}</div>
+            <div class="cal-summary-sub">${winRate.toFixed(0)}% win rate</div>
+          </div>
+          <div class="cal-summary-item">
+            <div class="cal-summary-label">Green Days</div>
+            <div class="cal-summary-value pos">${greenDays}</div>
+            <div class="cal-summary-sub">${redDays} red days</div>
+          </div>
+          <div class="cal-summary-item">
+            <div class="cal-summary-label">Best Day</div>
+            <div class="cal-summary-value pos">${bestDay ? fmtCompact(bestDay.net_pnl) : '—'}</div>
+            <div class="cal-summary-sub">${bestDay ? bestDay.date : ''}</div>
+          </div>
+          <div class="cal-summary-item">
+            <div class="cal-summary-label">Worst Day</div>
+            <div class="cal-summary-value neg">${worstDay && worstDay.net_pnl < 0 ? fmtCompact(worstDay.net_pnl) : '—'}</div>
+            <div class="cal-summary-sub">${worstDay && worstDay.net_pnl < 0 ? worstDay.date : ''}</div>
+          </div>
+        </div>
+      `;
+
+      const monthsHTML = months.map(m => {
+        const year = m.getFullYear();
+        const month = m.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Month total
+        let monthTotal = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const k = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          if (byDate[k]) monthTotal += byDate[k].net_pnl || 0;
+        }
+
+        const cells = [];
+        for (let i = 0; i < firstDay; i++) cells.push('<div class="cal-day empty-slot"></div>');
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const stat = byDate[dateStr];
+          const dow = (firstDay + d - 1) % 7;
+          const isWeekend = dow === 0 || dow === 6;
+          const isToday = dateStr === todayStr;
+
+          if (!stat) {
+            cells.push(`
+              <div class="cal-day ${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}">
+                <div class="cal-day-num">${d}</div>
+              </div>
+            `);
+            continue;
+          }
+          const pnl = stat.net_pnl || 0;
+          const intensity = Math.min(1, Math.sqrt(Math.abs(pnl) / maxAbs));
+          const bg = pnl >= 0
+            ? `linear-gradient(135deg, rgba(92,184,92,${0.1 + intensity * 0.35}) 0%, rgba(92,184,92,${0.2 + intensity * 0.5}) 100%)`
+            : `linear-gradient(135deg, rgba(224,92,92,${0.1 + intensity * 0.35}) 0%, rgba(224,92,92,${0.2 + intensity * 0.5}) 100%)`;
+          const borderColor = pnl >= 0 ? `rgba(92,184,92,${0.4 + intensity * 0.4})` : `rgba(224,92,92,${0.4 + intensity * 0.4})`;
+          const wr = stat.trade_count > 0 ? Math.round(stat.win_count / stat.trade_count * 100) : 0;
+          cells.push(`
+            <div class="cal-day has-data ${isToday ? 'today' : ''}" style="background:${bg};border-color:${borderColor};">
+              <div class="cal-day-num">${d}</div>
+              <div class="cal-day-pnl" style="color:${pnl >= 0 ? '#5CB85C' : '#E05C5C'};">${fmtCompact(pnl)}</div>
+              <div class="cal-day-trades">${stat.trade_count} ${stat.trade_count === 1 ? 'trade' : 'trades'}</div>
+              <div class="cal-day-tooltip">
+                <strong>${dateStr}</strong><br>
+                P&L: <span style="color:${pnl >= 0 ? '#5CB85C' : '#E05C5C'};font-weight:700;">${fmtMoney(pnl)}</span><br>
+                ${stat.trade_count} trades · ${wr}% win rate
+              </div>
+            </div>
+          `);
+        }
+        return `
+          <div class="cal-month">
+            <div class="cal-month-title">
+              <span>${m.toLocaleString('default', { month: 'short' })} ${year}</span>
+              <span class="cal-month-pnl ${monthTotal >= 0 ? 'pos' : 'neg'}">${fmtCompact(monthTotal)}</span>
+            </div>
+            <div class="cal-grid">
+              ${dayNames.map(n => `<div class="cal-header">${n}</div>`).join('')}
+              ${cells.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="cal-wrap">
+          ${summaryHTML}
+          <div class="cal-months-grid">
+            ${monthsHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    // ─── Equity Curves ────────────────────────────────────────────────────
+
+    let equityAccountSelectWired = false;
+
+    async function loadEquityTab() {
+      const container = document.getElementById('equity-container');
+      if (!container) return;
+      if (!serverOnline) {
+        container.innerHTML = '<div style="color:#556677;padding:20px;">Server offline</div>';
+        return;
+      }
+      try {
+        let { accounts } = await api('/accounts');
+        // Respect global stage filter
+        if (globalStageFilter !== 'all') {
+          accounts = accounts.filter(a => stageIndex[a.id] === globalStageFilter);
+        }
+        const sel = document.getElementById('equity-account-select');
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">All Accounts (Aggregate)</option>' +
+          accounts.map(a => `<option value="${escapeHtml(a.id)}">${escapeHtml(firmLabel(a.firm) + ' · ' + (a.name || a.external_id))}</option>`).join('');
+        // Restore previous selection if it still exists, otherwise reset
+        if (cur && accounts.some(a => a.id === cur)) {
+          sel.value = cur;
+        } else {
+          sel.value = '';
+        }
+        // Wire the change handler once (not every time the view opens)
+        if (!equityAccountSelectWired) {
+          sel.addEventListener('change', renderEquityForSelection);
+          equityAccountSelectWired = true;
+        }
+      } catch (e) {
+        container.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+        return;
+      }
+      renderEquityForSelection();
+    }
+
+    async function renderEquityForSelection() {
+      const sel = document.getElementById('equity-account-select');
+      const container = document.getElementById('equity-container');
+      if (!sel || !container) return;
+      const accountId = sel.value;
+
+      // Show loading state so the user sees the switch happen
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:#556677;font-size:13px;">Loading…</div>';
+
+      try {
+        const url = accountId ? `/accounts/${encodeURIComponent(accountId)}/equity` : '/equity';
+        const data = await api(url);
+        let dd = null;
+        if (accountId) {
+          try { dd = await api(`/accounts/${encodeURIComponent(accountId)}/drawdown`); }
+          catch { dd = null; }
+        }
+        renderEquityCurve(data, dd, container);
+      } catch (e) {
+        container.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+      }
+    }
+
+    function renderEquityCurve(data, dd, container) {
+      if (!data.curve || data.curve.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#556677;padding:40px;">No trades to chart. Sync or import data first.</div>';
+        return;
+      }
+
+      const startBalance = data.starting_balance || 0;
+      const points = data.curve;
+      // Use a fixed viewBox so the SVG scales to container width regardless
+      // of whether the container was visible when this first ran.
+      const w = 1200;
+      const h = 400;
+      const pad = { top: 24, right: 24, bottom: 40, left: 72 };
+      const innerW = w - pad.left - pad.right;
+      const innerH = h - pad.top - pad.bottom;
+
+      const allEquity = points.map(p => p.equity).concat(points.map(p => p.peak));
+      let minY = Math.min(...allEquity);
+      let maxY = Math.max(...allEquity);
+      if (dd) {
+        minY = Math.min(minY, dd.dd_threshold);
+        maxY = Math.max(maxY, dd.peak_balance);
+      }
+      const yPad = (maxY - minY) * 0.05 || 100;
+      minY -= yPad;
+      maxY += yPad;
+
+      const minX = points[0].time;
+      const maxX = points[points.length - 1].time;
+
+      const xScale = t => pad.left + ((t - minX) / (maxX - minX || 1)) * innerW;
+      const yScale = v => pad.top + (1 - (v - minY) / (maxY - minY || 1)) * innerH;
+
+      const equityPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.time).toFixed(1)} ${yScale(p.equity).toFixed(1)}`).join(' ');
+      const peakPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.time).toFixed(1)} ${yScale(p.peak).toFixed(1)}`).join(' ');
+
+      // DD threshold line if available
+      let ddLine = '';
+      if (dd) {
+        const y = yScale(dd.dd_threshold);
+        ddLine = `
+          <line x1="${pad.left}" y1="${y}" x2="${pad.left + innerW}" y2="${y}" stroke="#E05C5C" stroke-width="2" stroke-dasharray="6,6"/>
+          <text x="${pad.left + innerW - 5}" y="${y - 6}" text-anchor="end" fill="#E05C5C" font-size="12">DD Threshold $${dd.dd_threshold.toFixed(0)}</text>
+        `;
+      }
+
+      // Y-axis labels
+      const yLabels = [];
+      const yStep = (maxY - minY) / 4;
+      for (let i = 0; i <= 4; i++) {
+        const v = minY + yStep * i;
+        const y = yScale(v);
+        yLabels.push(`<text x="${pad.left - 10}" y="${y + 4}" text-anchor="end" fill="#556677" font-size="12">$${(v).toFixed(0)}</text>`);
+        yLabels.push(`<line x1="${pad.left}" y1="${y}" x2="${pad.left + innerW}" y2="${y}" stroke="#21262d" stroke-width="1"/>`);
+      }
+
+      // Stats
+      const final = points[points.length - 1].equity;
+      const ret = startBalance > 0 ? ((final - startBalance) / startBalance * 100) : 0;
+
+      let cards = `
+        <div class="stat-grid-small">
+          <div class="stat-card"><div class="stat-label">Starting</div><div class="stat-value">$${startBalance.toLocaleString()}</div></div>
+          <div class="stat-card"><div class="stat-label">Current Equity</div><div class="stat-value ${final >= startBalance ? 'green' : 'red'}">$${final.toLocaleString(undefined, {maximumFractionDigits:2})}</div></div>
+          <div class="stat-card"><div class="stat-label">Net P&amp;L</div><div class="stat-value ${final - startBalance >= 0 ? 'green' : 'red'}">${final - startBalance >= 0 ? '+' : ''}$${(final - startBalance).toLocaleString(undefined, {maximumFractionDigits:2})}</div></div>
+          ${startBalance > 0 ? `<div class="stat-card"><div class="stat-label">Return %</div><div class="stat-value ${ret >= 0 ? 'green' : 'red'}">${ret.toFixed(2)}%</div></div>` : ''}
+      `;
+      if (dd) {
+        cards += `
+          <div class="stat-card"><div class="stat-label">Peak Balance</div><div class="stat-value">$${dd.peak_balance.toLocaleString(undefined, {maximumFractionDigits:2})}</div></div>
+          <div class="stat-card"><div class="stat-label">DD Threshold</div><div class="stat-value red">$${dd.dd_threshold.toLocaleString(undefined, {maximumFractionDigits:2})}</div></div>
+          <div class="stat-card"><div class="stat-label">DD Cushion</div><div class="stat-value ${dd.distance_to_dd > dd.drawdown_amount * 0.5 ? 'green' : dd.distance_to_dd > dd.drawdown_amount * 0.25 ? 'yellow' : 'red'}">$${dd.distance_to_dd.toLocaleString(undefined, {maximumFractionDigits:2})}</div></div>
+          <div class="stat-card"><div class="stat-label">Status</div><div class="stat-value ${dd.busted ? 'red' : 'green'}">${dd.busted ? 'BUSTED' : (dd.locked ? 'LOCKED' : 'ACTIVE')}</div></div>
+        `;
+      }
+      cards += '</div>';
+
+      container.innerHTML = cards + `
+        <div class="panel" style="padding:16px;">
+          <h3 style="margin:0 0 12px;font-size:13px;color:#fff;font-weight:600;">Equity Curve</h3>
+          <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;height:auto;max-height:420px;">
+            ${yLabels.join('')}
+            <path d="${peakPath}" fill="none" stroke="#5CB85C" stroke-width="2" stroke-dasharray="4,4" opacity="0.6"/>
+            <path d="${equityPath}" fill="none" stroke="#58a6ff" stroke-width="2.5"/>
+            ${ddLine}
+            <text x="${pad.left}" y="${pad.top - 8}" fill="#58a6ff" font-size="12">— Equity</text>
+            <text x="${pad.left + 80}" y="${pad.top - 8}" fill="#5CB85C" font-size="12">- - Peak</text>
+          </svg>
+        </div>
+      `;
+    }
+
+    // ─── Trade Notes ──────────────────────────────────────────────────────
+
+    let currentNoteTradeId = null;
+
+    async function openTradeNote(tradeId, summary) {
+      currentNoteTradeId = tradeId;
+      document.getElementById('trade-note-summary').textContent = summary;
+      document.getElementById('trade-note-setup').value = '';
+      document.getElementById('trade-note-tags').value = '';
+      document.getElementById('trade-note-rating').value = '';
+      document.getElementById('trade-note-text').value = '';
+      try {
+        const { note } = await api(`/trades/${encodeURIComponent(tradeId)}/note`);
+        if (note) {
+          document.getElementById('trade-note-setup').value = note.setup || '';
+          document.getElementById('trade-note-tags').value = note.tags || '';
+          document.getElementById('trade-note-rating').value = note.rating || '';
+          document.getElementById('trade-note-text').value = note.note || '';
+        }
+      } catch {}
+      openModal('modal-trade-note');
+    }
+
+    async function submitTradeNote() {
+      const body = {
+        setup: document.getElementById('trade-note-setup').value,
+        tags: document.getElementById('trade-note-tags').value,
+        rating: parseInt(document.getElementById('trade-note-rating').value) || null,
+        note: document.getElementById('trade-note-text').value,
+      };
+      try {
+        await api(`/trades/${encodeURIComponent(currentNoteTradeId)}/note`, {
+          method: 'POST', body: JSON.stringify(body),
+        });
+        closeModal('modal-trade-note');
+        if (activeView === "journal") loadJournal();
+      } catch (e) {
+        alert('Failed: ' + e.message);
+      }
+    }
+
+    // ─── Patterns ─────────────────────────────────────────────────────────
+
+    async function loadPatterns() {
+      const container = document.getElementById('inline-patterns-container');
+      if (!container) return;
+      if (!serverOnline) { container.innerHTML = '<div style="padding:20px;color:#556677;font-size:13px;">Server offline</div>'; return; }
+      try {
+        const filterQS = buildFilterQuery().replace(/^&/, '?');
+        const p = await api('/patterns' + filterQS);
+        renderPatterns(p, container);
+      } catch (e) {
+        container.innerHTML = `<div style="color:#E05C5C;padding:20px;">${e.message}</div>`;
+      }
+    }
+
+    function renderPatterns(p, container) {
+      if (p.empty || p.tradeCount === 0) {
+        container.innerHTML = `
+          <div style="background:linear-gradient(180deg,#161b22 0%,#121720 100%);border:1px solid #21262d;border-radius:14px;padding:40px;text-align:center;">
+            <div style="color:#556677;font-size:13px;">No trades yet. Sync or import data to see performance metrics.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const fmt$ = n => (n >= 0 ? '+' : '') + '$' + n.toFixed(0);
+      const fmtRatio = n => (n === Infinity ? '∞' : (typeof n === 'number' ? n.toFixed(2) : '—'));
+      const m = p.metrics || {};
+
+      container.innerHTML = `
+        <!-- Performance / Trade stats -->
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;margin:0 0 10px;">Performance</div>
+        <div class="stat-grid-small">
+          <div class="stat-card"><div class="stat-label">Net P&amp;L</div><div class="stat-value ${p.totalPnl >= 0 ? 'green' : 'red'}">${fmt$(p.totalPnl)}</div></div>
+          <div class="stat-card"><div class="stat-label">Trades</div><div class="stat-value">${p.tradeCount}</div></div>
+          <div class="stat-card"><div class="stat-label">Trading Days</div><div class="stat-value">${m.tradingDays || 0}</div></div>
+          <div class="stat-card"><div class="stat-label">Win Rate</div><div class="stat-value">${(p.winRate * 100).toFixed(1)}%</div></div>
+          <div class="stat-card"><div class="stat-label">Avg Win</div><div class="stat-value green">${fmt$(p.avgWin)}</div></div>
+          <div class="stat-card"><div class="stat-label">Avg Loss</div><div class="stat-value red">${fmt$(p.avgLoss)}</div></div>
+          <div class="stat-card"><div class="stat-label">Largest Win</div><div class="stat-value green">${fmt$(m.largestWin || p.maxWin)}</div></div>
+          <div class="stat-card"><div class="stat-label">Largest Loss</div><div class="stat-value red">${fmt$(m.largestLoss || p.maxLoss)}</div></div>
+        </div>
+
+        <!-- Risk-adjusted ratios -->
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;margin:24px 0 10px;">Risk-Adjusted Metrics</div>
+        <div class="stat-grid-small">
+          <div class="stat-card"><div class="stat-label">Expectancy</div><div class="stat-value ${p.expectancy >= 0 ? 'green' : 'red'}">${fmt$(p.expectancy)}</div></div>
+          <div class="stat-card"><div class="stat-label">Profit Factor</div><div class="stat-value ${(m.profitFactor || p.profitFactor) >= 1.5 ? 'green' : (m.profitFactor || p.profitFactor) >= 1 ? 'yellow' : 'red'}">${fmtRatio(m.profitFactor || p.profitFactor)}</div></div>
+          <div class="stat-card"><div class="stat-label">Avg Win/Loss</div><div class="stat-value ${(m.avgWinLossRatio || 0) >= 1 ? 'green' : 'red'}">${fmtRatio(m.avgWinLossRatio)}</div></div>
+          <div class="stat-card"><div class="stat-label">Sharpe</div><div class="stat-value ${(m.sharpe || 0) >= 1 ? 'green' : (m.sharpe || 0) >= 0 ? 'yellow' : 'red'}">${fmtRatio(m.sharpe)}</div></div>
+          <div class="stat-card"><div class="stat-label">Sortino</div><div class="stat-value ${(m.sortino || 0) >= 1 ? 'green' : (m.sortino || 0) >= 0 ? 'yellow' : 'red'}">${fmtRatio(m.sortino)}</div></div>
+          <div class="stat-card"><div class="stat-label">Calmar</div><div class="stat-value">${fmtRatio(m.calmar)}</div></div>
+          <div class="stat-card"><div class="stat-label">Recovery Factor</div><div class="stat-value ${(m.recoveryFactor || 0) >= 2 ? 'green' : (m.recoveryFactor || 0) >= 1 ? 'yellow' : 'red'}">${fmtRatio(m.recoveryFactor)}</div></div>
+          <div class="stat-card"><div class="stat-label">Consistency</div><div class="stat-value">${p.consistencyScore.toFixed(0)}/100</div></div>
+        </div>
+
+        <!-- Drawdown / Streaks -->
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;margin:24px 0 10px;">Drawdown &amp; Streaks</div>
+        <div class="stat-grid-small">
+          <div class="stat-card"><div class="stat-label">Max Drawdown</div><div class="stat-value red">${fmt$(-(m.maxDrawdown || 0))}</div></div>
+          <div class="stat-card"><div class="stat-label">Max Runup</div><div class="stat-value green">${fmt$(m.maxRunup || 0)}</div></div>
+          <div class="stat-card"><div class="stat-label">Max Win Streak</div><div class="stat-value green">${m.maxWinStreak || 0}</div></div>
+          <div class="stat-card"><div class="stat-label">Max Loss Streak</div><div class="stat-value red">${m.maxLossStreak || 0}</div></div>
+          <div class="stat-card"><div class="stat-label">Best Streak Value</div><div class="stat-value green">${fmt$(m.maxWinStreakValue || 0)}</div></div>
+          <div class="stat-card"><div class="stat-label">Worst Streak Value</div><div class="stat-value red">${fmt$(m.maxLossStreakValue || 0)}</div></div>
+          <div class="stat-card"><div class="stat-label">1R (avg loss)</div><div class="stat-value">${fmt$(m.oneR || 0)}</div></div>
+          <div class="stat-card"><div class="stat-label">Avg R</div><div class="stat-value ${(m.avgR || 0) >= 0 ? 'green' : 'red'}">${(m.avgR || 0).toFixed(2)}R</div></div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="pattern-section">
+          <h4>Recommendations</h4>
+          ${p.recommendations.length === 0 ? '<div class="rec-item info">Trading looks steady. Keep it up.</div>' : p.recommendations.map(r => `<div class="rec-item ${r.severity}">${escapeHtml(r.text)}</div>`).join('')}
+        </div>
+
+        <!-- By Hour -->
+        <div class="pattern-section">
+          <h4>P&amp;L by Hour of Day</h4>
+          <div style="background:#161b22;border:1px solid #21262d;border-radius:10px;padding:16px;">
+            <div style="display:grid;grid-template-columns:repeat(24,1fr);gap:3px;">
+              ${p.hourStats.map(h => {
+                const maxAbs = Math.max(...p.hourStats.map(x => Math.abs(x.pnl))) || 1;
+                const height = Math.max(4, (Math.abs(h.pnl) / maxAbs) * 80);
+                const color = h.pnl >= 0 ? '#5CB85C' : '#E05C5C';
+                return `<div style="text-align:center;" title="${h.hour}:00 — ${h.count} trades, ${fmt$(h.pnl)}">
+                  <div style="height:80px;display:flex;align-items:flex-end;">
+                    <div style="width:100%;height:${height}px;background:${color};opacity:0.7;border-radius:2px;"></div>
+                  </div>
+                  <div style="font-size:9px;color:#556677;margin-top:3px;">${h.hour}</div>
+                </div>`;
+              }).join('')}
+            </div>
+            <div style="font-size:11px;color:#556677;margin-top:12px;">Best: ${p.bestHours.map(h => `${h.hour}:00 (${fmt$(h.pnl)})`).join(', ') || 'n/a'} · Worst: ${p.worstHours.map(h => `${h.hour}:00 (${fmt$(h.pnl)})`).join(', ') || 'n/a'}</div>
+          </div>
+        </div>
+
+        <!-- By Day -->
+        <div class="pattern-section">
+          <h4>P&amp;L by Day of Week</h4>
+          <table style="width:100%;font-size:12px;">
+            <thead><tr><th>Day</th><th>Trades</th><th>Win Rate</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+            <tbody>
+              ${p.dayStats.filter(d => d.count > 0).map(d => `
+                <tr>
+                  <td style="color:#fff;font-weight:600;">${d.day}</td>
+                  <td>${d.count}</td>
+                  <td>${(d.winRate * 100).toFixed(1)}%</td>
+                  <td style="text-align:right;" class="${d.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmt$(d.pnl)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Symbols -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="pattern-section">
+            <h4>Best Symbols</h4>
+            <table style="width:100%;font-size:12px;">
+              <tbody>
+                ${p.bestSymbols.map(s => `<tr><td style="color:#fff;font-weight:600;">${s.symbol}</td><td>${s.count}</td><td>${(s.winRate * 100).toFixed(0)}%</td><td style="text-align:right;color:#5CB85C;">${fmt$(s.pnl)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="pattern-section">
+            <h4>Duration Analysis</h4>
+            <table style="width:100%;font-size:12px;">
+              <thead><tr><th>Bucket</th><th>Trades</th><th>Win Rate</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+              <tbody>
+                ${p.durationStats.map(d => `<tr><td style="color:#fff;">${d.bucket}</td><td>${d.count}</td><td>${(d.winRate * 100).toFixed(0)}%</td><td style="text-align:right;" class="${d.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmt$(d.pnl)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+            <div style="font-size:10px;color:#556677;margin-top:6px;">scalp&lt;1m · short 1-5m · medium 5-30m · long 30m+</div>
+          </div>
+        </div>
+
+        <!-- By Account -->
+        <div class="pattern-section">
+          <h4>By Account</h4>
+          <table style="width:100%;font-size:12px;">
+            <thead><tr><th>Account</th><th>Trades</th><th>Win Rate</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+            <tbody>
+              ${p.byAccount.map(a => `<tr><td style="color:#fff;">${escapeHtml(firmLabel(a.firm))} · ${escapeHtml(a.name)}</td><td>${a.count}</td><td>${(a.count ? (a.wins / a.count * 100).toFixed(0) : 0)}%</td><td style="text-align:right;" class="${a.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmt$(a.pnl)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${p.overtradingDays.length > 0 ? `
+        <div class="pattern-section">
+          <h4>Over-trading Days (&gt;20 trades)</h4>
+          <table style="width:100%;font-size:12px;">
+            <thead><tr><th>Date</th><th>Trades</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+            <tbody>
+              ${p.overtradingDays.slice(0,5).map(d => `<tr><td>${d.date}</td><td>${d.count}</td><td style="text-align:right;" class="${d.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmt$(d.pnl)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+
+        ${p.drawdownDays.length > 0 ? `
+        <div class="pattern-section">
+          <h4>Worst Drawdown Days</h4>
+          <table style="width:100%;font-size:12px;">
+            <thead><tr><th>Date</th><th>Trades</th><th style="text-align:right;">P&amp;L</th></tr></thead>
+            <tbody>
+              ${p.drawdownDays.map(d => `<tr><td>${d.date}</td><td>${d.count}</td><td style="text-align:right;color:#E05C5C;">${fmt$(d.pnl)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+      `;
+    }
+
+    // ─── Init live data ────────────────────────────────────────────────────
+
+    async function initLiveData() {
+      await checkServer();
+      // Restore filter dropdown state
+      const sel = document.getElementById('global-stage-filter');
+      if (sel) {
+        sel.value = globalStageFilter;
+        sel.classList.toggle('filtered', globalStageFilter !== 'all');
+      }
+      if (serverOnline) {
+        loadConnections();
+        await refreshLiveFirms();
+        loadCalendar();
+        loadPatterns();
+      }
+      // Keep checking server status every 10s
+      setInterval(async () => {
+        const was = serverOnline;
+        await checkServer();
+        if (!was && serverOnline) {
+          if (activeView === "accounts") loadConnections();
+          await refreshLiveFirms();
+          loadCalendar();
+          loadPatterns();
+        }
+      }, 10_000);
+      // Refresh inline data every 60s
+      setInterval(() => {
+        if (serverOnline) {
+          refreshLiveFirms();
+          loadCalendar();
+          loadPatterns();
+        }
+      }, 60_000);
+    }
+
+    // ─── INIT ─────────────────────────────────────────────────────────────────
+
+    loadData();
+    render();
+    renderRecTable();
+    initLiveData();
+  </script>
+
+</body>
+</html>

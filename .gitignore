@@ -1,0 +1,35 @@
+# User data — NEVER commit
+server/.data/
+*.db
+*.db-shm
+*.db-wal
+
+# Legacy credential files (in case anyone runs an older version)
+vault.enc
+master.key
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temp
+tmp/
+*.tmp
