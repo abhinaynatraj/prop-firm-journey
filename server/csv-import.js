@@ -67,6 +67,19 @@ function parseTimestamp(s) {
   return 0;
 }
 
+// Parses money strings from Tradovate exports:
+//   "$294.00" -> 294 ; "$(205.00)" -> -205 ; "$(1,150.00)" -> -1150 ; "$0.00" -> 0
+function parseMoney(s) {
+  if (s === null || s === undefined) return 0;
+  let str = String(s).trim();
+  if (!str) return 0;
+  const negative = /^\(.*\)$/.test(str) || str.includes('(');
+  str = str.replace(/[$,()]/g, '').trim();
+  const n = parseFloat(str);
+  if (isNaN(n)) return 0;
+  return negative ? -Math.abs(n) : n;
+}
+
 function normalizeTopstepXTrades(objs, connectionId) {
   const accountMap = {};
   const trades = [];
@@ -349,4 +362,5 @@ module.exports = {
   rowsToObjects,
   detectFormat,
   pairFillsIntoTrades,
+  parseMoney,
 };
