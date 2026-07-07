@@ -65,4 +65,6 @@ function parse(text, connectionId) {
   return { accounts, dailyRows };
 }
 
-module.exports = { parseMoney, isBalanceHistory, parse };
+function __csvHelpers() { return { parseCSV, isBalanceHistory }; }
+
+module.exports = { parseMoney, isBalanceHistory, parse, __csvHelpers };

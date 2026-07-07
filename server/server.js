@@ -8,6 +8,7 @@ const crypto = require('crypto');
 
 const db = require('./db');
 const csvImport = require('./csv-import');
+const balanceImportLogic = require('./import-balance');
 const sync = require('./sync');
 const patterns = require('./patterns');
 const metrics = require('./metrics');
@@ -305,6 +306,24 @@ app.post('/api/connections/:id/import-csv', upload.single('file'), (req, res) =>
       fills: result.fills.length,
       trades: result.trades.length,
     });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ─── Balance history import ─────────────────────────────────────────────────────────────
+app.post('/api/import-balance-history', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'no file uploaded' });
+    const text = req.file.buffer.toString('utf8');
+    const result = balanceImportLogic.importBalanceHistory(text, {
+      firm: req.body.firm,
+      startingBalance: req.body.startingBalance,
+      drawdownType: req.body.drawdownType,
+      drawdownAmount: req.body.drawdownAmount,
+      drawdownLocksAt: req.body.drawdownLocksAt,
+    });
+    res.json({ ok: true, ...result });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
