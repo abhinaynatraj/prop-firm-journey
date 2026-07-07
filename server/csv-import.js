@@ -50,6 +50,7 @@ function detectFormat(headers) {
   if (h.includes('contractname') && h.includes('pnl')) return 'topstepx-trades';
   if (h.includes('activity') && h.includes('message type') && h.includes('related id')) return 'tradovate-export';
   if (h.includes('orderid') && h.includes('b/s') && (h.includes('avgprice') || h.includes('avg fill price'))) return 'tradovate-orders';
+  if (h.includes('buy price') && h.includes('sell price') && (h.includes('p&l') || h.includes('pnl'))) return 'tradovate-performance';
   if (h.includes('symbol') && h.includes('entry price') && h.includes('exit price')) return 'generic-trades';
   return 'unknown';
 }

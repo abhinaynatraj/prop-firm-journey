@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseMoney } = require('../csv-import');
+const { parseMoney, detectFormat } = require('../csv-import');
 
 test('parseMoney parses positive dollars', () => {
   assert.equal(parseMoney('$294.00'), 294);
@@ -18,4 +18,14 @@ test('parseMoney handles zero and empty', () => {
   assert.equal(parseMoney('$0.00'), 0);
   assert.equal(parseMoney(''), 0);
   assert.equal(parseMoney(undefined), 0);
+});
+
+test('detectFormat recognizes Tradovate Performance headers', () => {
+  const headers = ['Symbol','Qty','Buy Price','Buy Time','Duration','Sell Time','Sell Price','P&L'];
+  assert.equal(detectFormat(headers), 'tradovate-performance');
+});
+
+test('detectFormat still recognizes generic entry/exit trades', () => {
+  const headers = ['Symbol','Entry Price','Exit Price'];
+  assert.equal(detectFormat(headers), 'generic-trades');
 });
