@@ -29,3 +29,8 @@ test('detectFormat still recognizes generic entry/exit trades', () => {
   const headers = ['Symbol','Entry Price','Exit Price'];
   assert.equal(detectFormat(headers), 'generic-trades');
 });
+
+test('detectFormat prefers tradovate-performance over generic when both could match', () => {
+  const headers = ['Symbol','Qty','Buy Price','Buy Time','Sell Time','Sell Price','P&L','Entry Price','Exit Price'];
+  assert.equal(detectFormat(headers), 'tradovate-performance');
+});
