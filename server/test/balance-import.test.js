@@ -27,3 +27,41 @@ test('isBalanceHistory rejects a trades header', () => {
   const h = ['Symbol','Qty','Buy Price','Sell Price','P&L'];
   assert.equal(isBalanceHistory(h), false);
 });
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { parse } = require('../balance-import');
+
+const FIX = fs.readFileSync(path.join(__dirname,'fixtures','balance-history-sample.csv'),'utf8');
+
+test('parse groups rows into one account per Account ID', () => {
+  const r = parse(FIX, 'connA');
+  assert.equal(r.accounts.length, 2);
+  const a = r.accounts.find(x => x.external_id === '54823063');
+  assert.equal(a.id, 'connA-54823063');
+  assert.equal(a.account_type, 'balance-history');
+  assert.equal(a.name, 'FTDFYG50573537347');
+});
+
+test('account balance is the latest day, realized_pnl is the sum', () => {
+  const r = parse(FIX, 'connA');
+  const a = r.accounts.find(x => x.external_id === '54823063');
+  assert.equal(a.balance, 60311.70);   // latest date 2026-07-07
+  assert.equal(Math.round(a.realized_pnl * 100) / 100, 1332.30 + 881.60 - 2230.50 + 2390.00 + 1626.00);
+});
+
+test('daily rows carry balance and net_pnl, keyed by date+account', () => {
+  const r = parse(FIX, 'connA');
+  const rows = r.dailyRows.filter(x => x.account_id === 'connA-54823063');
+  assert.equal(rows.length, 5);
+  const dip = rows.find(x => x.date === '2026-06-29');
+  assert.equal(dip.net_pnl, -2230.5);
+  assert.equal(dip.balance, 51170.00);
+  assert.equal(dip.trade_count, 0);
+});
+
+test('second account grouped independently', () => {
+  const r = parse(FIX, 'connA');
+  const b = r.accounts.find(x => x.external_id === '99999999');
+  assert.equal(b.balance, 25100.00);   // latest 2026-07-07
+});
