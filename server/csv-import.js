@@ -259,6 +259,71 @@ function normalizeTradovateOrders(objs, connectionId) {
   };
 }
 
+function normalizeTradovatePerformance(objs, connectionId) {
+  // Tradovate "Performance" export: one row per already-closed trade with a
+  // signed P&L column. No account column, so all rows attach to one account.
+  const localAcct = `${connectionId}-perf`;
+  const trades = [];
+  for (const o of objs) {
+    const symbol = (o.Symbol || o.symbol || 'UNKNOWN').trim();
+    const qty = Math.abs(parseFloat(o.Qty || o.Quantity || 0) || 0);
+    const buyPrice = parseFloat(o['Buy Price'] || o.BuyPrice || 0) || 0;
+    const sellPrice = parseFloat(o['Sell Price'] || o.SellPrice || 0) || 0;
+    const buyTime = parseTimestamp(o['Buy Time'] || o.BuyTime);
+    const sellTime = parseTimestamp(o['Sell Time'] || o.SellTime);
+    const netPnl = parseMoney(o['P&L'] || o.PnL || o['P&l'] || o.pnl);
+
+    // Direction: a long is bought then sold; a covered short is sold (earlier)
+    // then bought back. Tie (equal times) defaults to long.
+    const isLong = buyTime <= sellTime;
+    const entry_time = Math.min(buyTime, sellTime);
+    const exit_time = Math.max(buyTime, sellTime);
+    const entry_price = isLong ? buyPrice : sellPrice;
+    const exit_price = isLong ? sellPrice : buyPrice;
+    const duration_sec = Math.max(0, Math.floor((exit_time - entry_time) / 1000));
+
+    trades.push({
+      // Deterministic ID (idempotent re-import). pnl+qty disambiguate
+      // same-second, same-price micro rows.
+      id: `${localAcct}-TP-${entry_time}-${exit_time}-${symbol}-${qty}-${netPnl}`,
+      account_id: localAcct,
+      symbol,
+      side: isLong ? 'long' : 'short',
+      quantity: qty,
+      entry_price,
+      exit_price,
+      entry_time,
+      exit_time,
+      duration_sec,
+      pnl: netPnl,
+      commission: 0,
+      net_pnl: netPnl,
+      hour_of_day: new Date(entry_time).getHours(),
+      day_of_week: new Date(entry_time).getDay(),
+    });
+  }
+  const realized = trades.reduce((s, t) => s + t.net_pnl, 0);
+  return {
+    accounts: [{
+      id: localAcct,
+      external_id: 'performance',
+      name: 'Performance',
+      connection_id: connectionId,
+      account_type: 'tradovate-performance',
+      balance: null,
+      realized_pnl: realized,
+      unrealized_pnl: null,
+      equity: null,
+      trailing_drawdown: null,
+      drawdown_lock: null,
+      status: 'active',
+      last_updated: Date.now(),
+    }],
+    fills: [],
+    trades,
+  };
+}
+
 // ─── FIFO fill pairing ─────────────────────────────────────────────────────
 // Matches open/close fills into closed trades, FIFO.
 
@@ -351,6 +416,7 @@ function importCSV(text, connectionId) {
     case 'topstepx-trades':  return normalizeTopstepXTrades(objs, connectionId);
     case 'tradovate-export': return normalizeTradovateExport(objs, connectionId);
     case 'tradovate-orders': return normalizeTradovateOrders(objs, connectionId);
+    case 'tradovate-performance': return normalizeTradovatePerformance(objs, connectionId);
     case 'generic-trades':   return normalizeTopstepXTrades(objs, connectionId); // reuse
     default:
       throw new Error(`Unknown CSV format. Headers: ${headers.slice(0, 5).join(', ')}...`);
@@ -364,4 +430,5 @@ module.exports = {
   detectFormat,
   pairFillsIntoTrades,
   parseMoney,
+  normalizeTradovatePerformance,
 };
