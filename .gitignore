@@ -33,3 +33,6 @@ desktop.ini
 # Temp
 tmp/
 *.tmp
+
+# Superpowers scratch (brainstorm mockups, sdd ledger)
+.superpowers/
