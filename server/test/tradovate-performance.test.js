@@ -1,6 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseMoney, detectFormat, normalizeTradovatePerformance } = require('../csv-import');
+const fs = require('node:fs');
+const path = require('node:path');
+const { parseMoney, detectFormat, normalizeTradovatePerformance, importCSV } = require('../csv-import');
 
 test('parseMoney parses positive dollars', () => {
   assert.equal(parseMoney('$294.00'), 294);
@@ -88,4 +90,44 @@ test('normalize keeps breakeven rows with zero duration', () => {
 test('account realized_pnl sums the file net P&L', () => {
   const r = normalizeTradovatePerformance(PERF_OBJS, 'conn1');
   assert.equal(r.accounts[0].realized_pnl, -1150 + 145 + 0);
+});
+
+const FIXTURE = fs.readFileSync(
+  path.join(__dirname, 'fixtures', 'tradovate-performance-sample.csv'), 'utf8');
+
+test('importCSV routes Performance CSV to the right normalizer', () => {
+  const r = importCSV(FIXTURE, 'connX');
+  assert.equal(r.accounts[0].account_type, 'tradovate-performance');
+  assert.equal(r.trades.length, 5);
+});
+
+test('same-second same-price micro rows get distinct IDs (no collapse)', () => {
+  const r = importCSV(FIXTURE, 'connX');
+  const ids = new Set(r.trades.map(t => t.id));
+  assert.equal(ids.size, 5); // the two 18:25:25 rows differ by price+pnl
+});
+
+test('re-importing the same file is idempotent by trade ID', () => {
+  const a = importCSV(FIXTURE, 'connX');
+  const b = importCSV(FIXTURE, 'connX');
+  const idsA = a.trades.map(t => t.id).sort();
+  const idsB = b.trades.map(t => t.id).sort();
+  assert.deepEqual(idsA, idsB); // identical IDs → DB upsert dedupes
+});
+
+test('trades split across the correct calendar days', () => {
+  const r = importCSV(FIXTURE, 'connX');
+  const dayOf = (ms) => {
+    const d = new Date(ms);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+  const byDay = {};
+  for (const t of r.trades) {
+    const k = dayOf(t.entry_time);
+    byDay[k] = (byDay[k] || 0) + 1;
+  }
+  const days = Object.keys(byDay).sort();
+  assert.deepEqual(days, ['2026-07-01', '2026-07-02']);
+  assert.equal(byDay['2026-07-01'], 2);
+  assert.equal(byDay['2026-07-02'], 3);
 });
