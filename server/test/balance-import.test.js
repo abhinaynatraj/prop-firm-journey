@@ -16,3 +16,14 @@ test('parseMoney handles empty/undefined', () => {
   assert.equal(parseMoney(''), 0);
   assert.equal(parseMoney(undefined), 0);
 });
+
+const { isBalanceHistory } = require('../balance-import');
+
+test('isBalanceHistory accepts the balance export header', () => {
+  const h = ['Account ID','Account Name','Trade Date','Total Amount','Total Realized PNL'];
+  assert.equal(isBalanceHistory(h), true);
+});
+test('isBalanceHistory rejects a trades header', () => {
+  const h = ['Symbol','Qty','Buy Price','Sell Price','P&L'];
+  assert.equal(isBalanceHistory(h), false);
+});

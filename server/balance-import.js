@@ -17,4 +17,10 @@ function parseMoney(s) {
   return negative ? -Math.abs(n) : n;
 }
 
-module.exports = { parseMoney };
+function isBalanceHistory(headers) {
+  const h = headers.map(x => String(x).toLowerCase().trim());
+  return h.includes('account id') && h.includes('trade date') &&
+         h.includes('total amount') && h.includes('total realized pnl');
+}
+
+module.exports = { parseMoney, isBalanceHistory };
