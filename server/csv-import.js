@@ -74,8 +74,8 @@ function parseMoney(s) {
   if (s === null || s === undefined) return 0;
   let str = String(s).trim();
   if (!str) return 0;
-  const negative = /^\(.*\)$/.test(str) || str.includes('(');
-  str = str.replace(/[$,()]/g, '').trim();
+  const negative = str.startsWith('(') || str.startsWith('$(') || str.startsWith('-');
+  str = str.replace(/^\$?\(/, '').replace(/\)$/, '').replace(/[$,]/g, '').trim();
   const n = parseFloat(str);
   if (isNaN(n)) return 0;
   return negative ? -Math.abs(n) : n;
@@ -265,13 +265,16 @@ function normalizeTradovatePerformance(objs, connectionId) {
   const localAcct = `${connectionId}-perf`;
   const trades = [];
   for (const o of objs) {
-    const symbol = (o.Symbol || o.symbol || 'UNKNOWN').trim();
-    const qty = Math.abs(parseFloat(o.Qty || o.Quantity || 0) || 0);
-    const buyPrice = parseFloat(o['Buy Price'] || o.BuyPrice || 0) || 0;
-    const sellPrice = parseFloat(o['Sell Price'] || o.SellPrice || 0) || 0;
-    const buyTime = parseTimestamp(o['Buy Time'] || o.BuyTime);
-    const sellTime = parseTimestamp(o['Sell Time'] || o.SellTime);
-    const netPnl = parseMoney(o['P&L'] || o.PnL || o['P&l'] || o.pnl);
+    const low = {};
+    for (const k of Object.keys(o)) low[k.toLowerCase().trim()] = o[k];
+
+    const symbol = (low['symbol'] || 'UNKNOWN').trim();
+    const qty = Math.abs(parseFloat(low['qty'] || low['quantity'] || 0) || 0);
+    const buyPrice = parseFloat(low['buy price'] || 0) || 0;
+    const sellPrice = parseFloat(low['sell price'] || 0) || 0;
+    const buyTime = parseTimestamp(low['buy time']);
+    const sellTime = parseTimestamp(low['sell time']);
+    const netPnl = parseMoney(low['p&l'] !== undefined ? low['p&l'] : low['pnl']);
 
     // Direction: a long is bought then sold; a covered short is sold (earlier)
     // then bought back. Tie (equal times) defaults to long.

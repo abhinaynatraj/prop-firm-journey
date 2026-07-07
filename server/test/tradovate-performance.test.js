@@ -22,6 +22,18 @@ test('parseMoney handles zero and empty', () => {
   assert.equal(parseMoney(undefined), 0);
 });
 
+test('parseMoney does not treat a stray paren as negative', () => {
+  assert.equal(parseMoney('1(2'), 1);
+});
+
+test('parseMoney still handles a leading-minus negative', () => {
+  assert.equal(parseMoney('-$50.00'), -50);
+});
+
+test('parseMoney still handles parenthesized negatives with commas', () => {
+  assert.equal(parseMoney('$(1,150.00)'), -1150);
+});
+
 test('detectFormat recognizes Tradovate Performance headers', () => {
   const headers = ['Symbol','Qty','Buy Price','Buy Time','Duration','Sell Time','Sell Price','P&L'];
   assert.equal(detectFormat(headers), 'tradovate-performance');
@@ -113,6 +125,20 @@ test('re-importing the same file is idempotent by trade ID', () => {
   const idsA = a.trades.map(t => t.id).sort();
   const idsB = b.trades.map(t => t.id).sort();
   assert.deepEqual(idsA, idsB); // identical IDs → DB upsert dedupes
+});
+
+test('normalize reads columns case-insensitively (lowercase headers)', () => {
+  const row = {
+    symbol: 'MNQU6', qty: '5', 'buy price': '30196.75',
+    'buy time': '07/01/2026 21:58:42', 'sell time': '07/01/2026 22:04:37',
+    'sell price': '30211.25', 'p&l': '$145.00',
+  };
+  const r = normalizeTradovatePerformance([row], 'connZ');
+  const t = r.trades[0];
+  assert.equal(t.net_pnl, 145);
+  assert.equal(t.side, 'long');
+  assert.equal(t.entry_price, 30196.75);
+  assert.ok(t.entry_time > 0);
 });
 
 test('trades split across the correct calendar days', () => {
