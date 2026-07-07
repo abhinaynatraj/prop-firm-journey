@@ -17,6 +17,7 @@ const equity = require('./equity');
 const ocr = require('./ocr');
 const accountParser = require('./account-parser');
 const topstepxShare = require('./topstepx-share');
+const accountsView = require('./accounts-view');
 
 const PORT = 3847;
 const HOST = '127.0.0.1';
@@ -332,7 +333,7 @@ app.post('/api/import-balance-history', upload.single('file'), (req, res) => {
 // ─── Accounts ─────────────────────────────────────────────────────────────
 
 app.get('/api/accounts', (req, res) => {
-  res.json({ accounts: db.listAccounts() });
+  res.json({ accounts: accountsView.attachCushion(db.listAccounts(), db) });
 });
 
 // ─── Trades / Journal ─────────────────────────────────────────────────────
