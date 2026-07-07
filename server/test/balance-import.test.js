@@ -46,18 +46,22 @@ test('parse groups rows into one account per Account ID', () => {
 test('account balance is the latest day, realized_pnl is the sum', () => {
   const r = parse(FIX, 'connA');
   const a = r.accounts.find(x => x.external_id === '54823063');
-  assert.equal(a.balance, 60311.70);   // latest date 2026-07-07
-  assert.equal(Math.round(a.realized_pnl * 100) / 100, 1332.30 + 881.60 - 2230.50 + 2390.00 + 1626.00);
+  assert.equal(a.balance, 58000.00);   // latest date 2026-07-08 (below the 60,311.70 max, so latest != max)
+  assert.equal(Math.round(a.realized_pnl * 100) / 100, Math.round((1332.30 + 881.60 - 2230.50 + 2390.00 + 1626.00 - 2311.70) * 100) / 100);
 });
 
 test('daily rows carry balance and net_pnl, keyed by date+account', () => {
   const r = parse(FIX, 'connA');
   const rows = r.dailyRows.filter(x => x.account_id === 'connA-54823063');
-  assert.equal(rows.length, 5);
+  assert.equal(rows.length, 6);
   const dip = rows.find(x => x.date === '2026-06-29');
   assert.equal(dip.net_pnl, -2230.5);
   assert.equal(dip.balance, 51170.00);
   assert.equal(dip.trade_count, 0);
+  // latest-day balance must NOT be the max: 2026-07-07 ($60,311.70) is higher than the latest day
+  const a = r.accounts.find(x => x.external_id === '54823063');
+  const earlier = rows.find(x => x.date === '2026-07-07');
+  assert.ok(a.balance < earlier.balance);   // 58000 < 60311.70 — a Math.max() impl would fail this
 });
 
 test('second account grouped independently', () => {
