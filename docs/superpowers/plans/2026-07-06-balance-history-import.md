@@ -550,7 +550,7 @@ test('rejects a non-balance CSV', () => {
 test('imports accounts + daily rows and reports counts', () => {
   const r = importBalanceHistory(FIX, { firm:'apex-test-'+Math.floor(1), startingBalance:50000, drawdownType:'eod_trailing', drawdownAmount:2500 });
   assert.equal(r.accounts.length, 2);
-  assert.equal(r.daysImported, 7);
+  assert.equal(r.daysImported, 8);   // 6 rows for 54823063 + 2 for 99999999
   assert.equal(r.daysUpdated, 0);
   // account persisted
   const acct = db.listAccounts().find(a => a.external_id === '54823063' && a.connection_id === r.connectionId);
@@ -568,10 +568,10 @@ test('re-import is idempotent by (date, account) and reports updates', () => {
   const second = importBalanceHistory(FIX, opts);
   assert.equal(second.connectionId, first.connectionId); // reused firm connection
   assert.equal(second.daysImported, 0);
-  assert.equal(second.daysUpdated, 7);
+  assert.equal(second.daysUpdated, 8);   // all 8 rows already present
   // daily rows not duplicated
   const rows = db.listDailyStatsByAccount(first.connectionId + '-54823063');
-  assert.equal(rows.length, 5);
+  assert.equal(rows.length, 6);   // hardened fixture has 6 rows for this account
 });
 
 test('re-import does not overwrite an edited account config', () => {
@@ -751,10 +751,12 @@ test('attachCushion adds a cushion object to balance-history accounts', () => {
   const withCushion = attachCushion(accounts, db);
   const a = withCushion.find(x => x.external_id === '54823063');
   assert.ok(a.cushion);
-  assert.equal(a.cushion.currentBalance, 60311.70);
-  // peak is 60311.70 (latest is the high), limit = 60311.70 - 2500
+  assert.equal(a.cushion.currentBalance, 58000);        // latest day 2026-07-08
+  assert.equal(a.cushion.peakBalance, 60311.70);        // running peak (earlier high)
+  // eod_trailing: limit = peak 60311.70 - 2500 = 57811.70
   assert.equal(a.cushion.limit, 57811.70);
-  assert.ok(a.cushion.cushion > 0);
+  // cushion = 58000 - 57811.70 = 188.30 (still positive but thinner than at peak)
+  assert.equal(Math.round(a.cushion.cushion * 100) / 100, 188.30);
 });
 ```
 
@@ -891,7 +893,7 @@ Find where account cards render (grep `account_type` / `openCSVUpload('${c.id}')
 - [ ] **Step 5: Manual smoke test (controller performs)**
 
 Start the server (`node server.js` from `server/`). In the browser: click **📈 Import Balances**, pick firm "Apex", upload `server/test/fixtures/balance-history-sample.csv`, set start 50000 / eod_trailing / 2500, Continue.
-Expected: toast "Imported 7 days across 2 account(s) under apex"; Accounts view shows two stat-tile cards (54823063 balance $60,311.70, a positive cushion; 99999999 balance $25,100.00); Calendar shows the days with P&L + balance; re-uploading the same file toasts "0 days … 7 updated" and does not duplicate. Delete the smoke connections afterward.
+Expected: toast "Imported 8 days across 2 account(s) under apex"; Accounts view shows two stat-tile cards (54823063 balance $58,000.00, a positive cushion; 99999999 balance $25,100.00); Calendar shows the days with P&L + balance; re-uploading the same file toasts "0 days … 8 updated" and does not duplicate. Delete the smoke connections afterward.
 
 - [ ] **Step 6: Commit**
 
