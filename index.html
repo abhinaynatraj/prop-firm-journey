@@ -1287,6 +1287,7 @@
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#556677;font-weight:600;">Connections</div>
       <div style="display:flex;gap:8px;">
         <button class="btn" style="padding:6px 14px;font-size:12px;background:rgba(88,166,255,0.15);color:#58a6ff;border:1px solid rgba(88,166,255,0.3);" onclick="openBulkImportModal()">📷 Bulk Import (Screenshot + CSV)</button>
+        <button class="btn" style="padding:6px 14px;font-size:12px;background:rgba(210,153,34,0.15);color:#d29922;border:1px solid rgba(210,153,34,0.3);" onclick="openImportBalancesModal()">📈 Import Balances</button>
         <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;" onclick="openAddConnectionModal()">+ Add Connection</button>
       </div>
     </div>
@@ -1384,6 +1385,59 @@
       <div class="modal-actions">
         <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-add-connection')">Cancel</button>
         <button class="btn btn-primary" onclick="submitAddConnection()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Balances Modal -->
+  <div class="modal-overlay" id="modal-import-balances">
+    <div class="modal">
+      <h2>Import Balances</h2>
+      <div class="form-row">
+        <label>Daily Balance CSV</label>
+        <input type="file" id="bal-file" accept=".csv">
+      </div>
+      <div class="form-row">
+        <label>Firm</label>
+        <select id="bal-firm" onchange="toggleBalFirmCustom()">
+          <option value="tpt">Take Profit Trader</option>
+          <option value="lucid">Lucid Trading</option>
+          <option value="tradeify">Tradeify</option>
+          <option value="mffu">My Funded Futures</option>
+          <option value="apex">Apex Trader Funding</option>
+          <option value="daytraders">Day Traders</option>
+          <option value="alpha">Alpha Futures</option>
+          <option value="topstepx">TopstepX (CSV import)</option>
+          <option value="__custom__">+ Custom firm name…</option>
+        </select>
+        <input type="text" id="bal-firm-custom" placeholder="e.g. Bulenox, FundedNext" style="display:none;margin-top:8px;">
+      </div>
+      <div class="form-row">
+        <label>Starting Balance ($)</label>
+        <input type="number" id="bal-start" value="50000" step="100">
+      </div>
+      <div class="form-row">
+        <label>Drawdown Type</label>
+        <select id="bal-dd-type">
+          <option value="static">Static (from starting balance)</option>
+          <option value="eod_trailing" selected>EOD Trailing (most prop firms)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Drawdown Amount ($)</label>
+        <input type="number" id="bal-dd-amount" value="2500" step="100">
+      </div>
+      <div class="form-row">
+        <label>DD Locks At Balance ($, optional)</label>
+        <input type="number" id="bal-dd-lock" placeholder="e.g. 52000 — leave blank if no lock">
+      </div>
+      <div style="font-size:11px;color:#8899aa;background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:10px 12px;margin-bottom:12px;line-height:1.5;">
+        Imports a daily-balance CSV (one row per day) and tracks cushion-to-drawdown instead of per-trade P&amp;L. Re-uploading the same file updates existing days instead of duplicating them.
+      </div>
+      <div id="bal-error" style="font-size:11px;color:#E05C5C;margin-bottom:8px;"></div>
+      <div class="modal-actions">
+        <button class="btn" style="background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="closeModal('modal-import-balances')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitImportBalances()">Continue</button>
       </div>
     </div>
   </div>
@@ -2452,6 +2506,70 @@
       }
     }
 
+    // ─── Import Balances (daily-balance CSV, cushion-based tracking) ──────
+
+    function toggleBalFirmCustom() {
+      const sel = document.getElementById('bal-firm');
+      const input = document.getElementById('bal-firm-custom');
+      if (sel.value === '__custom__') {
+        input.style.display = 'block';
+        input.focus();
+      } else {
+        input.style.display = 'none';
+      }
+    }
+
+    function openImportBalancesModal() {
+      if (!serverOnline) { alert('Server is offline. Start it first.'); return; }
+      document.getElementById('bal-file').value = '';
+      document.getElementById('bal-error').textContent = '';
+      const customInput = document.getElementById('bal-firm-custom');
+      if (customInput) { customInput.value = ''; customInput.style.display = 'none'; }
+      const firmSel = document.getElementById('bal-firm');
+      if (firmSel && firmSel.value === '__custom__') firmSel.value = 'tpt';
+      openModal('modal-import-balances');
+    }
+
+    async function submitImportBalances() {
+      const err = document.getElementById('bal-error');
+      err.textContent = '';
+      const fileEl = document.getElementById('bal-file');
+      if (!fileEl.files.length) { err.textContent = 'Choose a CSV file.'; return; }
+
+      let firm = document.getElementById('bal-firm').value;
+      if (firm === '__custom__') {
+        const custom = document.getElementById('bal-firm-custom').value.trim();
+        if (!custom) { err.textContent = 'Enter a custom firm name.'; return; }
+        firm = firmNameToSlug(custom);
+        if (!firm) { err.textContent = 'Custom firm name is invalid.'; return; }
+      }
+
+      const fd = new FormData();
+      fd.append('file', fileEl.files[0]);
+      fd.append('firm', firm);
+      fd.append('startingBalance', document.getElementById('bal-start').value || '50000');
+      fd.append('drawdownType', document.getElementById('bal-dd-type').value);
+      fd.append('drawdownAmount', document.getElementById('bal-dd-amount').value || '2500');
+      fd.append('drawdownLocksAt', document.getElementById('bal-dd-lock').value || '');
+
+      try {
+        const res = await fetch(`${API}/import-balance-history`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error || 'Import failed.'; return; }
+        closeModal('modal-import-balances');
+        let msg = `Imported ${data.daysImported} days across ${data.accounts.length} account(s) under ${firm}`;
+        if (data.daysUpdated) msg += `, ${data.daysUpdated} updated`;
+        alert(msg);
+        loadConnections();
+        await refreshLiveFirms();
+        loadCalendar();
+        loadPatterns();
+        loadLiveAccounts();
+      } catch (e) {
+        err.textContent = 'Import failed: ' + e.message;
+      }
+    }
+
     // ─── Bulk Import (screenshot + CSV or share URL) ──────────────────────
 
     let bulkParsedRows = null;
@@ -2711,9 +2829,12 @@
           grid.innerHTML = `<div style="text-align:center;color:#556677;padding:40px;grid-column:1/-1;">${msg}</div>`;
           return;
         }
-        // Fetch drawdown and configs for each account in parallel
+        // Fetch drawdown and configs for each account in parallel.
+        // Balance-history accounts have no trades, so /drawdown (trade-based) isn't
+        // meaningful for them — skip that fetch and use the account's own `cushion` instead.
         const [ddData, configsRes] = await Promise.all([
           Promise.all(accounts.map(async a => {
+            if (a.account_type === 'balance-history') return null;
             try { return await api(`/accounts/${encodeURIComponent(a.id)}/drawdown`); }
             catch { return null; }
           })),
@@ -2725,11 +2846,16 @@
           const dd = ddData[i];
           const cfg = configById[a.id];
           const pnl = a.realized_pnl || 0;
+          const isBalanceHistory = a.account_type === 'balance-history';
           // Prefer equity from drawdown calc if available (computed from trades)
           const balance = (dd && dd.current_equity != null) ? dd.current_equity : (a.balance ?? 0);
           const realizedPnl = pnl;
           let danger = false, cls = '';
-          if (dd) {
+          if (isBalanceHistory && a.cushion) {
+            if (a.cushion.locked || a.cushion.cushion <= 0) { cls = 'danger'; danger = true; }
+            else if (a.cushion.cushionPct != null && a.cushion.cushionPct < 10) { cls = 'danger'; danger = true; }
+            else cls = 'profit';
+          } else if (dd) {
             const ratio = dd.distance_to_dd / dd.drawdown_amount;
             if (ratio < 0.25) { cls = 'danger'; danger = true; }
             else if (dd.current_equity > dd.starting_balance) cls = 'profit';
@@ -2742,9 +2868,33 @@
           const stageLabels = { auto: 'Auto', eval: 'In Evaluation', eval_passed: 'Eval Passed', funded: 'Funded', payout: 'Payout Ready', failed: 'Busted' };
           const stageColors = { auto: '#8899aa', eval: '#E8923A', eval_passed: '#40CEC9', funded: '#5CB85C', payout: '#58a6ff', failed: '#E05C5C' };
 
-          // Build drawdown gauge if config exists
+          // Build drawdown/cushion gauge
           let gauge = '';
-          if (dd) {
+          if (isBalanceHistory) {
+            if (a.cushion) {
+              const c = a.cushion;
+              const cushionColor = c.cushion > 0 ? '#5CB85C' : '#E05C5C';
+              const cushionPct = c.cushionPct != null ? Math.max(0, Math.min(100, c.cushionPct)) : null;
+              gauge = `
+                <div style="margin-top:12px;padding-top:10px;border-top:1px solid #21262d;">
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:#556677;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">
+                    <span>Cushion</span>
+                    <span style="color:${cushionColor};font-weight:600;">$${c.cushion.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  </div>
+                  ${cushionPct != null ? `
+                  <div style="height:6px;background:#21262d;border-radius:3px;overflow:hidden;">
+                    <div style="height:100%;width:${cushionPct}%;background:${cushionColor};transition:width 0.3s;"></div>
+                  </div>` : ''}
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:#556677;margin-top:4px;">
+                    <span>Limit $${c.limit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    <span>Peak $${c.peakBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}${c.locked ? ' 🔒' : ''}</span>
+                  </div>
+                </div>
+              `;
+            } else {
+              gauge = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #21262d;font-size:11px;color:#556677;">No cushion data yet</div>`;
+            }
+          } else if (dd) {
             const distancePct = Math.max(0, Math.min(100, (dd.distance_to_dd / dd.drawdown_amount) * 100));
             const gaugeColor = distancePct < 25 ? '#E05C5C' : distancePct < 50 ? '#E8923A' : '#5CB85C';
             gauge = `
@@ -2771,7 +2921,7 @@
               <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div>
                   <div class="live-acct-name">${escapeHtml(a.name || a.external_id)}</div>
-                  <div class="live-acct-firm">${firmLabel(a.firm)}</div>
+                  <div class="live-acct-firm">${firmLabel(a.firm)}${isBalanceHistory ? ' <span style="color:#d29922;">· Balance History</span>' : ''}</div>
                 </div>
                 <button class="btn" style="padding:4px 8px;font-size:10px;background:#21262d;color:#8899aa;border:1px solid #30363d;" onclick="openAccountConfig('${a.id}', '${escapeHtml(a.name || a.external_id)}')">⚙</button>
               </div>
@@ -3219,15 +3369,21 @@
             : `linear-gradient(135deg, rgba(224,92,92,${0.1 + intensity * 0.35}) 0%, rgba(224,92,92,${0.2 + intensity * 0.5}) 100%)`;
           const borderColor = pnl >= 0 ? `rgba(92,184,92,${0.4 + intensity * 0.4})` : `rgba(224,92,92,${0.4 + intensity * 0.4})`;
           const wr = stat.trade_count > 0 ? Math.round(stat.win_count / stat.trade_count * 100) : 0;
+          const hasBalance = stat.balance != null;
+          const balanceStr = hasBalance ? '$' + stat.balance.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '';
+          const subLine = stat.trade_count > 0
+            ? `${stat.trade_count} ${stat.trade_count === 1 ? 'trade' : 'trades'}`
+            : (hasBalance ? balanceStr : '');
           cells.push(`
             <div class="cal-day has-data ${isToday ? 'today' : ''}" style="background:${bg};border-color:${borderColor};">
               <div class="cal-day-num">${d}</div>
               <div class="cal-day-pnl" style="color:${pnl >= 0 ? '#5CB85C' : '#E05C5C'};">${fmtCompact(pnl)}</div>
-              <div class="cal-day-trades">${stat.trade_count} ${stat.trade_count === 1 ? 'trade' : 'trades'}</div>
+              <div class="cal-day-trades">${subLine}</div>
               <div class="cal-day-tooltip">
                 <strong>${dateStr}</strong><br>
                 P&L: <span style="color:${pnl >= 0 ? '#5CB85C' : '#E05C5C'};font-weight:700;">${fmtMoney(pnl)}</span><br>
-                ${stat.trade_count} trades · ${wr}% win rate
+                ${stat.trade_count > 0 ? `${stat.trade_count} trades · ${wr}% win rate` : ''}
+                ${hasBalance ? `${stat.trade_count > 0 ? '<br>' : ''}Balance: ${balanceStr}` : ''}
               </div>
             </div>
           `);
