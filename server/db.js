@@ -6,10 +6,12 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DATA_DIR = path.join(__dirname, '.data');
+// DB path: PFJ_DB_PATH overrides the default (used by tests to point at an
+// isolated temp DB so `npm test` never touches the user's real data).
+const DB_PATH = process.env.PFJ_DB_PATH || path.join(__dirname, '.data', 'trades.db');
+const DATA_DIR = path.dirname(DB_PATH);
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
 
-const DB_PATH = path.join(DATA_DIR, 'trades.db');
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
