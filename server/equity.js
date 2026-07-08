@@ -49,4 +49,26 @@ function buildDailyCurve(trades, startingBalance = 0) {
   });
 }
 
-module.exports = { buildCurve, buildDailyCurve };
+// Builds a daily equity curve directly from stored end-of-day balances
+// (for balance-history accounts, which have no trades). Each row already IS
+// the equity for that day; peak/drawdown are derived from the running max.
+// rows: [{ date, balance, net_pnl }] in any order (sorted here by date).
+function buildDailyCurveFromBalances(rows) {
+  const sorted = [...rows]
+    .filter(r => r.balance != null)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  let peak = -Infinity;
+  return sorted.map(r => {
+    const equity = r.balance;
+    if (equity > peak) peak = equity;
+    return {
+      date: r.date,
+      equity,
+      peak,
+      drawdown: peak - equity,
+      dailyPnl: r.net_pnl ?? 0,
+    };
+  });
+}
+
+module.exports = { buildCurve, buildDailyCurve, buildDailyCurveFromBalances };

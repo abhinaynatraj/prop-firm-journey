@@ -556,6 +556,12 @@ app.get('/api/accounts/:id/equity', (req, res) => {
     const accountId = req.params.id;
     const cfg = db.getAccountConfig(accountId);
     const start = cfg ? cfg.starting_balance : 0;
+    const acct = db.listAccounts().find(a => a.id === accountId);
+    if (acct && acct.account_type === 'balance-history') {
+      // No trades — build the curve from stored end-of-day balances.
+      const daily = equity.buildDailyCurveFromBalances(db.listDailyStatsByAccount(accountId));
+      return res.json({ curve: [], daily, starting_balance: start });
+    }
     const trades = db.query('SELECT * FROM trades WHERE account_id = ? ORDER BY entry_time ASC', accountId);
     res.json({
       curve: equity.buildCurve(trades, start),
