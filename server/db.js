@@ -232,7 +232,8 @@ const upsertDailyStat = db.prepare(`
 
 const listDailyStatsStmt = db.prepare(`
   SELECT date, SUM(trade_count) AS trade_count, SUM(win_count) AS win_count,
-         SUM(loss_count) AS loss_count, SUM(gross_pnl) AS gross_pnl, SUM(net_pnl) AS net_pnl
+         SUM(loss_count) AS loss_count, SUM(gross_pnl) AS gross_pnl, SUM(net_pnl) AS net_pnl,
+         SUM(balance) AS balance
   FROM daily_stats
   GROUP BY date
   ORDER BY date ASC
