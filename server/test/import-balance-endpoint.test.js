@@ -2,6 +2,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+process.env.PFJ_DB_PATH = path.join(os.tmpdir(), `pfj-test-${process.pid}-${process.hrtime.bigint()}.db`);
+
 const db = require('../db');
 const { importBalanceHistory } = require('../import-balance');
 

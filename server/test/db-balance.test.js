@@ -1,5 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const os = require('node:os');
+const path = require('node:path');
+process.env.PFJ_DB_PATH = path.join(os.tmpdir(), `pfj-test-${process.pid}-${process.hrtime.bigint()}.db`);
+
 const db = require('../db');
 
 test('daily_stats round-trips a balance value', () => {
