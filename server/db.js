@@ -6,10 +6,12 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const DATA_DIR = path.join(__dirname, '.data');
+// DB path: PFJ_DB_PATH overrides the default (used by tests to point at an
+// isolated temp DB so `npm test` never touches the user's real data).
+const DB_PATH = process.env.PFJ_DB_PATH || path.join(__dirname, '.data', 'trades.db');
+const DATA_DIR = path.dirname(DB_PATH);
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
 
-const DB_PATH = path.join(DATA_DIR, 'trades.db');
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
@@ -141,6 +143,7 @@ function addColumnIfMissing(table, column, definition) {
   }
 }
 addColumnIfMissing('account_configs', 'manual_status', 'TEXT');
+addColumnIfMissing('daily_stats', 'balance', 'REAL');
 
 // ─── Connections ───────────────────────────────────────────────────────────
 
@@ -225,20 +228,21 @@ const listTradesFilteredStmt = (where, params) => {
 // ─── Daily stats ───────────────────────────────────────────────────────────
 
 const upsertDailyStat = db.prepare(`
-  INSERT OR REPLACE INTO daily_stats (date, account_id, trade_count, win_count, loss_count, gross_pnl, net_pnl, max_drawdown)
-  VALUES (@date, @account_id, @trade_count, @win_count, @loss_count, @gross_pnl, @net_pnl, @max_drawdown)
+  INSERT OR REPLACE INTO daily_stats (date, account_id, trade_count, win_count, loss_count, gross_pnl, net_pnl, max_drawdown, balance)
+  VALUES (@date, @account_id, @trade_count, @win_count, @loss_count, @gross_pnl, @net_pnl, @max_drawdown, @balance)
 `);
 
 const listDailyStatsStmt = db.prepare(`
   SELECT date, SUM(trade_count) AS trade_count, SUM(win_count) AS win_count,
-         SUM(loss_count) AS loss_count, SUM(gross_pnl) AS gross_pnl, SUM(net_pnl) AS net_pnl
+         SUM(loss_count) AS loss_count, SUM(gross_pnl) AS gross_pnl, SUM(net_pnl) AS net_pnl,
+         SUM(balance) AS balance
   FROM daily_stats
   GROUP BY date
   ORDER BY date ASC
 `);
 
 const listDailyStatsByAccountStmt = db.prepare(`
-  SELECT date, account_id, trade_count, win_count, loss_count, gross_pnl, net_pnl
+  SELECT date, account_id, trade_count, win_count, loss_count, gross_pnl, net_pnl, balance
   FROM daily_stats
   WHERE account_id = ?
   ORDER BY date ASC
@@ -440,14 +444,9 @@ module.exports = {
   // Daily stats
   saveDailyStat(stat) {
     upsertDailyStat.run({
-      date: stat.date,
-      account_id: stat.account_id,
-      trade_count: stat.trade_count,
-      win_count: stat.win_count,
-      loss_count: stat.loss_count,
-      gross_pnl: stat.gross_pnl,
-      net_pnl: stat.net_pnl,
-      max_drawdown: stat.max_drawdown ?? null,
+      max_drawdown: null,
+      balance: null,
+      ...stat,
     });
   },
   listDailyStats: () => listDailyStatsStmt.all(),

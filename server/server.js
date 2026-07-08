@@ -8,6 +8,7 @@ const crypto = require('crypto');
 
 const db = require('./db');
 const csvImport = require('./csv-import');
+const balanceImportLogic = require('./import-balance');
 const sync = require('./sync');
 const patterns = require('./patterns');
 const metrics = require('./metrics');
@@ -16,6 +17,7 @@ const equity = require('./equity');
 const ocr = require('./ocr');
 const accountParser = require('./account-parser');
 const topstepxShare = require('./topstepx-share');
+const accountsView = require('./accounts-view');
 
 const PORT = 3847;
 const HOST = '127.0.0.1';
@@ -310,10 +312,28 @@ app.post('/api/connections/:id/import-csv', upload.single('file'), (req, res) =>
   }
 });
 
+// ─── Balance history import ─────────────────────────────────────────────────────────────
+app.post('/api/import-balance-history', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'no file uploaded' });
+    const text = req.file.buffer.toString('utf8');
+    const result = balanceImportLogic.importBalanceHistory(text, {
+      firm: req.body.firm,
+      startingBalance: req.body.startingBalance,
+      drawdownType: req.body.drawdownType,
+      drawdownAmount: req.body.drawdownAmount,
+      drawdownLocksAt: req.body.drawdownLocksAt,
+    });
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // ─── Accounts ─────────────────────────────────────────────────────────────
 
 app.get('/api/accounts', (req, res) => {
-  res.json({ accounts: db.listAccounts() });
+  res.json({ accounts: accountsView.attachCushion(db.listAccounts(), db) });
 });
 
 // ─── Trades / Journal ─────────────────────────────────────────────────────
@@ -345,14 +365,22 @@ app.get('/api/daily-stats', (req, res) => {
   if (!accountIds) {
     return res.json({ stats: db.listDailyStats() });
   }
-  // Filter: aggregate daily stats from the subset of trades
-  const trades = db.listTradesFiltered({ account_ids: accountIds });
+  // Split the selection: balance-history accounts have no trades — their daily
+  // rows (with balances) live in daily_stats. Trade-based accounts derive from
+  // trades as before. Merge both by date.
+  const acctTypeById = Object.fromEntries(db.listAccounts().map(a => [a.id, a.account_type]));
+  const balanceAccountIds = accountIds.filter(id => acctTypeById[id] === 'balance-history');
+  const tradeAccountIds = accountIds.filter(id => acctTypeById[id] !== 'balance-history');
+
   const byDate = {};
+  const ensure = (key) => (byDate[key] || (byDate[key] = { date: key, trade_count: 0, win_count: 0, loss_count: 0, gross_pnl: 0, net_pnl: 0, balance: null }));
+
+  // Trade-based accounts: aggregate from the subset of trades.
+  const trades = tradeAccountIds.length ? db.listTradesFiltered({ account_ids: tradeAccountIds }) : [];
   for (const t of trades) {
     const d = new Date(t.entry_time);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    if (!byDate[key]) byDate[key] = { date: key, trade_count: 0, win_count: 0, loss_count: 0, gross_pnl: 0, net_pnl: 0 };
-    const row = byDate[key];
+    const row = ensure(key);
     const pnl = t.net_pnl ?? t.pnl ?? 0;
     row.trade_count++;
     if (pnl > 0) row.win_count++;
@@ -360,6 +388,18 @@ app.get('/api/daily-stats', (req, res) => {
     row.gross_pnl += (t.pnl || 0);
     row.net_pnl += pnl;
   }
+
+  // Balance-history accounts: read stored daily rows (carry net_pnl + balance).
+  for (const id of balanceAccountIds) {
+    for (const r of db.listDailyStatsByAccount(id)) {
+      const row = ensure(r.date);
+      row.net_pnl += (r.net_pnl || 0);
+      row.gross_pnl += (r.gross_pnl || 0);
+      // Sum end-of-day balances across selected balance-history accounts for the day.
+      if (r.balance != null) row.balance = (row.balance || 0) + r.balance;
+    }
+  }
+
   const stats = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
   res.json({ stats });
 });
@@ -516,6 +556,12 @@ app.get('/api/accounts/:id/equity', (req, res) => {
     const accountId = req.params.id;
     const cfg = db.getAccountConfig(accountId);
     const start = cfg ? cfg.starting_balance : 0;
+    const acct = db.listAccounts().find(a => a.id === accountId);
+    if (acct && acct.account_type === 'balance-history') {
+      // No trades — build the curve from stored end-of-day balances.
+      const daily = equity.buildDailyCurveFromBalances(db.listDailyStatsByAccount(accountId));
+      return res.json({ curve: [], daily, starting_balance: start });
+    }
     const trades = db.query('SELECT * FROM trades WHERE account_id = ? ORDER BY entry_time ASC', accountId);
     res.json({
       curve: equity.buildCurve(trades, start),
